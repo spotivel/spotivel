@@ -12,8 +12,8 @@ class PlaylistFactory extends Factory
     public function definition(): array
     {
         return [
-            'spotify_id' => 'spotify_'.fake()->unique()->uuid(),
-            'name' => fake()->sentence(3),
+            'spotify_id' => fake()->unique()->regexify('[A-Za-z0-9]{22}'),
+            'name' => implode(' ', fake()->words(4)),
             'description' => fake()->paragraph(),
             'public' => fake()->boolean(80),
             'collaborative' => fake()->boolean(10),
@@ -21,7 +21,7 @@ class PlaylistFactory extends Factory
             'uri' => 'spotify:playlist:'.fake()->uuid(),
             'href' => fake()->url(),
             'external_url' => fake()->url(),
-            'owner_id' => 'spotify_user_'.fake()->uuid(),
+            'owner_id' => fake()->regexify('[A-Za-z0-9]{20}'),
             'owner_name' => fake()->name(),
         ];
     }

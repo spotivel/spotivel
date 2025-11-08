@@ -65,11 +65,20 @@ class PlaylistSyncDTOTransformer
         $metadata = $dto->metadata();
 
         return [
+        $payload = [
             'name' => $metadata['name'] ?? '',
             'description' => $metadata['description'] ?? '',
-            'public' => $metadata['public'] ?? true,
-            'collaborative' => $metadata['collaborative'] ?? false,
         ];
+
+        if (array_key_exists('public', $metadata)) {
+            $payload['public'] = $metadata['public'];
+        }
+
+        if (array_key_exists('collaborative', $metadata)) {
+            $payload['collaborative'] = $metadata['collaborative'];
+        }
+
+        return $payload;
     }
 
     /**

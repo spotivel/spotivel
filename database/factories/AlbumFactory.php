@@ -12,8 +12,8 @@ class AlbumFactory extends Factory
     public function definition(): array
     {
         return [
-            'spotify_id' => 'spotify_'.fake()->unique()->uuid(),
-            'name' => fake()->sentence(2),
+            'spotify_id' => fake()->unique()->regexify('[A-Za-z0-9]{22}'),
+            'name' => implode(' ', fake()->words(3)),
             'album_type' => fake()->randomElement(['album', 'single', 'compilation']),
             'release_date' => fake()->date(),
             'release_date_precision' => 'day',
