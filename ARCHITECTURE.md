@@ -93,6 +93,89 @@
                 │  + getTrackAudioAnalysis(trackId): mixed  │
                 │  + getRecommendations(seeds): mixed       │
                 └───────────────────────────────────────────┘
+
+                ┌───────────┴──────────────────────────────┐
+                │    SpotifyPlaylistsClient                 │
+                │  (Specialized Playlist Operations)        │
+                │                                           │
+                │  + list(playlistId): array                │
+                │  + getPage(playlistId, limit, offset)     │
+                └───────────────────────────────────────────┘
+```
+
+## Service Layer Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Database Services                      │
+│  (Single Responsibility - One service per entity)        │
+└─────────────────────────────────────────────────────────┘
+                            │
+          ┌─────────────────┼─────────────────┬─────────────────┐
+          │                 │                 │                 │
+          ▼                 ▼                 ▼                 ▼
+┌──────────────────┐ ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐
+│  TrackService    │ │ArtistService│ │AlbumService │ │PlaylistService   │
+│                  │ │             │ │             │ │                  │
+│+ createOrUpdate()│ │+ create...()│ │+ create...()│ │+ createOrUpdate()│
+│+ syncArtists()   │ │+ syncTracks()│ │+ syncArtists│ │+ syncTracks()    │
+│+ syncToPlaylist()│ │+ syncAlbums()│ │+ syncTracks()│ │                 │
+└──────────────────┘ └─────────────┘ └─────────────┘ └──────────────────┘
+```
+
+## Orchestrator Pattern
+
+```
+┌─────────────────────────────────────────────────────────┐
+│              PlaylistSyncOrchestrator                    │
+│  (Coordinates pipeline workflow)                         │
+│                                                          │
+│  + sync(dto, playlist): void                             │
+│  - saveToDatabase(dto, playlist): void                   │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            │ uses
+                            ▼
+                    ┌───────────────┐
+                    │   Pipeline    │
+                    └───────────────┘
+                            │
+          ┌─────────────────┼─────────────────┐
+          │                 │                 │
+          ▼                 ▼                 ▼
+┌──────────────────┐ ┌─────────────┐ ┌─────────────────┐
+│RemoveDuplicates  │ │  Normalize  │ │   Validate      │
+│   Handler        │ │   Handler   │ │   Handler       │
+└──────────────────┘ └─────────────┘ └─────────────────┘
+```
+
+## Decorator Pattern (Simplified)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│              HttpClientInterface                         │
+│  (Focused on single responsibility)                      │
+│                                                          │
+│  + request(): PendingRequest                             │
+└─────────────────────────────────────────────────────────┘
+                            ▲
+          ┌─────────────────┼─────────────────┐
+          │                 │                 │
+          │                 │                 │
+┌──────────────────┐ ┌─────────────┐ ┌──────────────────┐
+│ ExternalClient   │ │Exception    │ │RequestLogger     │
+│                  │ │Decorator    │ │Decorator         │
+│+ setBaseUrl()    │ │+ request()  │ │+ request()       │
+│+ setHeaders()    │ │             │ │                  │
+│+ setTimeout()    │ │             │ │                  │
+│+ request()       │ │             │ │                  │
+└──────────────────┘ └─────────────┘ └──────────────────┘
+
+Note: Configuration methods (setBaseUrl, setHeaders, setTimeout) 
+      are only in ExternalClient and SpotifyClient.
+      Decorators focus solely on their single responsibility:
+      - Exception handling
+      - Request logging
 ```
 
 ## Design Patterns Explained
@@ -193,3 +276,76 @@ $track->albums()->attach($albumId);
    │  MySQL/DB    │
    └──────────────┘
 ```
+
+## Updated Data Flow with Service Layer
+
+```
+1. Job Dispatch
+   ┌──────────────────────┐
+   │   SyncPlaylistJob    │
+   └──────┬───────────────┘
+          │
+          ▼
+2. Fetch from Spotify
+   ┌──────────────────────────┐
+   │ SpotifyPlaylistsClient   │ (extends SpotifyClient)
+   └──────┬───────────────────┘
+          │
+          ▼
+3. Create DTO
+   ┌──────────────────────┐
+   │  PlaylistSyncDTO     │
+   └──────┬───────────────┘
+          │
+          ▼
+4. Orchestrate Pipeline
+   ┌──────────────────────────┐
+   │PlaylistSyncOrchestrator  │
+   └──────┬───────────────────┘
+          │
+          ▼
+5. Pipeline Processing
+   ┌────────────────────┐
+   │ RemoveDuplicates   │
+   └────────┬───────────┘
+            │
+            ▼
+   ┌────────────────────┐
+   │   Normalize Data   │
+   └────────┬───────────┘
+            │
+            ▼
+   ┌────────────────────┐
+   │  Validate Tracks   │
+   └────────┬───────────┘
+            │
+            ▼
+6. Database Services
+   ┌────────────────────┐
+   │   TrackService     │ ──► createOrUpdate() ──► Track Model
+   └────────────────────┘
+   ┌────────────────────┐
+   │   ArtistService    │ ──► createOrUpdate() ──► Artist Model
+   └────────────────────┘
+   ┌────────────────────┐
+   │  PlaylistService   │ ──► syncTracks() ──► Playlist Model
+   └────────────────────┘
+            │
+            ▼
+7. Database Persistence
+   ┌──────────────────────┐
+   │  MySQL Database      │
+   │  - tracks            │
+   │  - artists           │
+   │  - playlists         │
+   │  - pivot tables      │
+   └──────────────────────┘
+```
+
+## Benefits of This Architecture
+
+1. **Testability**: Each component can be tested in isolation
+2. **Maintainability**: Clear separation of concerns
+3. **Scalability**: Easy to add new features without modifying existing code
+4. **Reusability**: Services can be used by multiple jobs/controllers
+5. **SOLID Compliance**: Every class has a single, well-defined responsibility

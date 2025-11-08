@@ -10,42 +10,75 @@ This application is built following strict software engineering principles:
 
 **Single Responsibility Principle (SRP)**
 - Each class has one clear, well-defined responsibility
-- Services handle database operations for their specific entity
-- Orchestrators coordinate pipeline workflows
-- Transformers handle DTO creation
+- Database Services (`TrackService`, `ArtistService`, `AlbumService`, `PlaylistService`) handle CRUD operations for their specific entity
+- Orchestrators (`PlaylistSyncOrchestrator`) coordinate pipeline workflows
+- Transformers (`PlaylistSyncDTOTransformer`) handle DTO creation
 - Jobs dispatch to services/orchestrators, not contain business logic
+- Pipeline handlers (`RemoveDuplicatePlaylistTracksHandler`, etc.) each handle one transformation
 
 **Open/Closed Principle**
 - Extensible through decorators (HttpClientExceptionDecorator, RequestLoggerDecorator)
 - Pipeline handlers can be added without modifying existing code
+- Services can be extended without modifying job logic
 
 **Liskov Substitution Principle**
 - SpotifyTracksClient can substitute SpotifyClient where needed
-- Decorators can substitute ExternalClient
+- SpotifyPlaylistsClient extends SpotifyClient for specialized playlist operations
+- Decorators implement HttpClientInterface and can substitute each other
 
 **Interface Segregation Principle**
+- HttpClientInterface defines only essential `request()` method
 - Focused service interfaces for each entity type
-- Clients provide only relevant methods
+- Clients provide only relevant methods for their domain
 
 **Dependency Inversion Principle**
-- Jobs depend on service abstractions, not concrete implementations
+- Jobs depend on service abstractions (injected via constructor)
 - Pipeline handlers work with DTO interfaces
+- Controllers depend on orchestrators, not direct database operations
 
 ### Additional Patterns
 
-**Early Returns**
-- Avoid nested conditionals
-- Return early on validation failures
-- Improve code readability
+**Early Returns Pattern**
+- Avoid deeply nested conditionals
+- Return early on validation failures or null checks
+- Improves code readability and reduces cognitive load
+- Example:
+  ```php
+  if (!isset($response['items']) || empty($response['items'])) {
+      return; // Early return
+  }
+  // Continue processing
+  ```
+
+**Service Layer Architecture**
+- All database operations go through dedicated service classes
+- Services located in `app/Services/Database/`
+- Each service handles one entity type (Track, Artist, Album, Playlist)
+- Services provide methods like `createOrUpdate()`, `syncArtists()`, `syncTracks()`
+- Jobs inject services via dependency injection
+
+**Orchestrator Pattern**
+- Orchestrators coordinate complex workflows
+- `PlaylistSyncOrchestrator` manages the playlist sync pipeline
+- Separates coordination logic from job execution
+- Makes testing easier by isolating business logic
+
+**Pipeline Pattern**
+- Data transformation through composable handlers
+- Each handler has single responsibility
+- Handlers: RemoveDuplicates → Normalize → Validate
+- Collection-based operations using Laravel Collections
 
 **Dynamic Programming**
 - Optimize deduplication with memoization where applicable
-- Efficient collection operations
+- Efficient collection operations using `unique()` with closures
+- Batch processing to minimize database queries
 
 **No JSON Columns**
 - All migrations avoid JSON columns intentionally
 - Data normalization follows database best practices
 - Better query performance and data integrity
+- Relationships stored in pivot tables instead
 
 ## Features
 
