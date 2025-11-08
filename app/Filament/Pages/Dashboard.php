@@ -2,6 +2,10 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\AlbumsTableWidget;
+use App\Filament\Widgets\ArtistsTableWidget;
+use App\Filament\Widgets\PlaylistsTableWidget;
+use App\Filament\Widgets\TracksTableWidget;
 use Filament\Pages\Page;
 
 class Dashboard extends Page
@@ -20,5 +24,15 @@ class Dashboard extends Page
     public function getTitle(): string
     {
         return 'Dashboard';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            TracksTableWidget::class,
+            ArtistsTableWidget::class,
+            AlbumsTableWidget::class,
+            PlaylistsTableWidget::class,
+        ];
     }
 }
