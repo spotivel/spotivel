@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Playlist;
+use App\Services\Database\PlaylistService;
 use App\Services\SpotifyClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +18,7 @@ class PopulatePlaylistsJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(SpotifyClient $spotifyClient): void
+    public function handle(SpotifyClient $spotifyClient, PlaylistService $playlistService): void
     {
         Log::info('Starting playlist population from Spotify');
 
@@ -34,28 +34,13 @@ class PopulatePlaylistsJob implements ShouldQueue
                     'offset' => $offset,
                 ])->json();
 
-                if (!isset($response['items']) || empty($response['items'])) {
+                if (! isset($response['items']) || empty($response['items'])) {
                     $hasMore = false;
                     break;
                 }
 
                 foreach ($response['items'] as $playlistData) {
-                    $playlist = Playlist::updateOrCreate(
-                        ['spotify_id' => $playlistData['id']],
-                        [
-                            'name' => $playlistData['name'],
-                            'description' => $playlistData['description'] ?? null,
-                            'public' => $playlistData['public'] ?? true,
-                            'collaborative' => $playlistData['collaborative'] ?? false,
-                            'total_tracks' => $playlistData['tracks']['total'] ?? 0,
-                            'images' => $playlistData['images'] ?? null,
-                            'uri' => $playlistData['uri'],
-                            'href' => $playlistData['href'],
-                            'external_url' => $playlistData['external_urls']['spotify'] ?? null,
-                            'owner_id' => $playlistData['owner']['id'] ?? null,
-                            'owner_name' => $playlistData['owner']['display_name'] ?? null,
-                        ]
-                    );
+                    $playlist = $playlistService->createOrUpdate($playlistData);
 
                     // Queue sync job for this playlist
                     SyncPlaylistJob::dispatch($playlist->id);
@@ -63,14 +48,14 @@ class PopulatePlaylistsJob implements ShouldQueue
 
                 $offset += $limit;
 
-                if (!isset($response['next']) || $response['next'] === null) {
+                if (! isset($response['next']) || $response['next'] === null) {
                     $hasMore = false;
                 }
             }
 
             Log::info('Playlist population completed successfully');
         } catch (\Exception $e) {
-            Log::error('Playlist population failed: ' . $e->getMessage());
+            Log::error('Playlist population failed: '.$e->getMessage());
             throw $e;
         }
     }

@@ -2,7 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\Track;
+use App\Services\Database\ArtistService;
+use App\Services\Database\TrackService;
 use App\Services\SpotifyTracksClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,8 +20,11 @@ class PopulateTracksJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(SpotifyTracksClient $spotifyClient): void
-    {
+    public function handle(
+        SpotifyTracksClient $spotifyClient,
+        TrackService $trackService,
+        ArtistService $artistService
+    ): void {
         Log::info('Starting track population from Spotify');
 
         try {
@@ -31,13 +35,13 @@ class PopulateTracksJob implements ShouldQueue
 
             while ($hasMore) {
                 $response = $spotifyClient->getSavedTracks($limit, $offset);
-                
-                if (!isset($response['items']) || empty($response['items'])) {
+
+                if (! isset($response['items']) || empty($response['items'])) {
                     $hasMore = false;
                     break;
                 }
 
-                $tracks = collect($response['items'])->map(fn($item) => $item['track']);
+                $tracks = collect($response['items'])->map(fn ($item) => $item['track']);
 
                 // Run through deduplication pipeline
                 $deduplicatedTracks = app(Pipeline::class)
@@ -50,53 +54,29 @@ class PopulateTracksJob implements ShouldQueue
 
                 // Save tracks to database
                 foreach ($deduplicatedTracks as $trackData) {
-                    $track = Track::updateOrCreate(
-                        ['spotify_id' => $trackData['id']],
-                        [
-                            'name' => $trackData['name'],
-                            'duration_ms' => $trackData['duration_ms'],
-                            'explicit' => $trackData['explicit'] ?? false,
-                            'disc_number' => $trackData['disc_number'] ?? 1,
-                            'track_number' => $trackData['track_number'] ?? null,
-                            'popularity' => $trackData['popularity'] ?? null,
-                            'preview_url' => $trackData['preview_url'] ?? null,
-                            'uri' => $trackData['uri'],
-                            'href' => $trackData['href'],
-                            'external_url' => $trackData['external_urls']['spotify'] ?? null,
-                            'is_local' => $trackData['is_local'] ?? false,
-                            'available_markets' => $trackData['available_markets'] ?? null,
-                        ]
-                    );
+                    $track = $trackService->createOrUpdate($trackData);
 
                     // Sync artists
                     if (isset($trackData['artists'])) {
                         $artistIds = [];
                         foreach ($trackData['artists'] as $artistData) {
-                            $artist = \App\Models\Artist::updateOrCreate(
-                                ['spotify_id' => $artistData['id']],
-                                [
-                                    'name' => $artistData['name'],
-                                    'uri' => $artistData['uri'] ?? null,
-                                    'href' => $artistData['href'] ?? null,
-                                    'external_url' => $artistData['external_urls']['spotify'] ?? null,
-                                ]
-                            );
+                            $artist = $artistService->createOrUpdate($artistData);
                             $artistIds[] = $artist->id;
                         }
-                        $track->artists()->sync($artistIds);
+                        $trackService->syncArtists($track, $artistIds);
                     }
                 }
 
                 $offset += $limit;
-                
-                if (!isset($response['next']) || $response['next'] === null) {
+
+                if (! isset($response['next']) || $response['next'] === null) {
                     $hasMore = false;
                 }
             }
 
             Log::info('Track population completed successfully');
         } catch (\Exception $e) {
-            Log::error('Track population failed: ' . $e->getMessage());
+            Log::error('Track population failed: '.$e->getMessage());
             throw $e;
         }
     }

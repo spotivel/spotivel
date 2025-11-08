@@ -1,0 +1,42 @@
+{
+  "items": [
+    {
+      "added_at": "2023-01-15T10:00:00Z",
+      "track": {
+        "id": "3n3Ppam7vgaVa1iaRUc9Lp",
+        "name": "Mr. Brightside",
+        "duration_ms": 222973,
+        "explicit": false,
+        "popularity": 87,
+        "uri": "spotify:track:3n3Ppam7vgaVa1iaRUc9Lp",
+        "href": "https://api.spotify.com/v1/tracks/3n3Ppam7vgaVa1iaRUc9Lp",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp"
+        },
+        "is_local": false,
+        "track_number": 2,
+        "disc_number": 1,
+        "artists": [
+          {
+            "id": "0C0XlULifJtAgn6ZNCW2eu",
+            "name": "The Killers",
+            "uri": "spotify:artist:0C0XlULifJtAgn6ZNCW2eu",
+            "href": "https://api.spotify.com/v1/artists/0C0XlULifJtAgn6ZNCW2eu",
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0C0XlULifJtAgn6ZNCW2eu"
+            }
+          }
+        ],
+        "album": {
+          "id": "4OHNH3sDzIxnmUADXzv2kT",
+          "name": "Hot Fuss",
+          "album_type": "album"
+        }
+      }
+    }
+  ],
+  "next": null,
+  "total": 1,
+  "limit": 50,
+  "offset": 0
+}

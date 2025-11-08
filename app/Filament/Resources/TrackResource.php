@@ -88,7 +88,7 @@ class TrackResource extends Resource
                     ->action(function () {
                         // Queue population job
                         \App\Jobs\PopulateTracksJob::dispatch();
-                        
+
                         \Filament\Notifications\Notification::make()
                             ->title('Tracks population queued')
                             ->success()

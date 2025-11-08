@@ -11,14 +11,12 @@ class NormalizePlaylistTrackDataHandler
      * Handle the pipeline to normalize track data in playlist DTO.
      * Uses Collection map() for functional transformation.
      *
-     * @param  PlaylistSyncDTO  $dto
-     * @param  Closure  $next
      * @return mixed
      */
     public function handle(PlaylistSyncDTO $dto, Closure $next)
     {
         $tracks = $dto->tracks();
-        
+
         // Normalize track data using Collection
         $normalizedTracks = $tracks->map(function ($track) {
             return array_merge($track, [

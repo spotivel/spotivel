@@ -207,3 +207,220 @@ Potential additions for the pipeline-based deduplication:
 - Queue jobs for async processing
 - Events for tracking sync operations
 - Cache layer for API responses
+
+## 9. DTO & Transformer Pattern
+
+### PlaylistSyncDTO
+The application uses Data Transfer Objects (DTOs) to pass data through the pipeline:
+
+```php
+class PlaylistSyncDTO {
+    public function __construct(
+        private int $playlistId,
+        private string $spotifyId,
+        private Collection $tracks,
+        private array $metadata = []
+    ) {}
+    
+    // Fluent getters
+    public function playlistId(): int { return $this->playlistId; }
+    public function spotifyId(): string { return $this->spotifyId; }
+    public function tracks(): Collection { return $this->tracks; }
+    
+    // Immutable setter (returns clone)
+    public function withTracks(Collection $tracks): self {
+        $clone = clone $this;
+        $clone->tracks = $tracks;
+        return $clone;
+    }
+}
+```
+
+### PlaylistSyncDTOTransformer
+Transformers handle the creation of DTOs from various data sources:
+
+```php
+class PlaylistSyncDTOTransformer {
+    // Transform from Playlist model and tracks data
+    public function transform(Playlist $playlist, array $tracksData): PlaylistSyncDTO;
+    
+    // Transform from raw array data
+    public function transformFromArray(array $data): PlaylistSyncDTO;
+    
+    // Transform from Spotify API response
+    public function transformFromSpotifyResponse(
+        int $playlistId, 
+        string $spotifyId, 
+        array $spotifyTracks
+    ): PlaylistSyncDTO;
+}
+```
+
+**Benefits:**
+- Type safety across the pipeline
+- Immutability through `withTracks()` pattern
+- Clear data structure for pipeline handlers
+- Separation of data transformation logic
+
+## 10. Service Layer Pattern
+
+The application implements a comprehensive service layer following SOLID principles:
+
+### Database Services
+Each entity has its own service in `app/Services/Database/`:
+
+**TrackService**
+```php
++ createOrUpdate(array $data): Track
++ syncArtists(Track $track, array $artistIds): void
++ syncToPlaylist(Track $track, int $playlistId, int $position): array
+```
+
+**ArtistService**
+```php
++ createOrUpdate(array $data): Artist
++ syncTracks(Artist $artist, array $trackIds): void
++ syncAlbums(Artist $artist, array $albumIds): void
+```
+
+**AlbumService**
+```php
++ createOrUpdate(array $data): Album
++ syncArtists(Album $album, array $artistIds): void
++ syncTracks(Album $album, array $trackIds): void
+```
+
+**PlaylistService**
+```php
++ createOrUpdate(array $data): Playlist
++ syncTracks(Playlist $playlist, array $trackIds): void
+```
+
+**Benefits:**
+- Single Responsibility: Each service handles one entity
+- Reusable across multiple jobs and controllers
+- Easier to test in isolation
+- Centralized business logic
+
+### Specialized Spotify Clients
+
+**SpotifyPlaylistsClient** (extends SpotifyClient)
+```php
++ list(string $playlistId, int $limit = 100, int $offset = 0): array
++ getPage(string $playlistId, int $limit = 100, int $offset = 0): array
+```
+
+This client handles all playlist-specific operations, including:
+- Fetching all tracks from a playlist with automatic pagination
+- Getting a single page of playlist tracks
+- Proper field selection for optimal API usage
+
+## 11. Orchestrator Pattern
+
+### PlaylistSyncOrchestrator
+Orchestrators coordinate complex workflows involving multiple services:
+
+```php
+class PlaylistSyncOrchestrator {
+    public function __construct(
+        private TrackService $trackService,
+        private ArtistService $artistService,
+        private PlaylistService $playlistService
+    ) {}
+    
+    public function sync(PlaylistSyncDTO $dto, Playlist $playlist): void {
+        // 1. Run through pipeline
+        $processedDTO = app(Pipeline::class)
+            ->send($dto)
+            ->through([...handlers...])
+            ->thenReturn();
+        
+        // 2. Save to database via services
+        $this->saveToDatabase($processedDTO, $playlist);
+    }
+}
+```
+
+**Benefits:**
+- Separates coordination from execution
+- Jobs remain thin and focused
+- Easy to test pipeline logic in isolation
+- Centralizes complex workflow management
+
+## 12. Pipeline Pattern
+
+The application uses Laravel Pipelines for data transformation:
+
+### Pipeline Handlers
+1. **RemoveDuplicatePlaylistTracksHandler**: Removes duplicates using Collection `unique()`
+2. **NormalizePlaylistTrackDataHandler**: Normalizes track data structure
+3. **ValidatePlaylistTracksHandler**: Validates track data completeness
+
+Each handler:
+- Implements a single transformation
+- Receives a DTO and returns a modified DTO
+- Uses the `withTracks()` method for immutability
+- Can be added/removed without modifying other handlers
+
+### Example: Deduplication Handler
+```php
+public function handle(PlaylistSyncDTO $dto, Closure $next) {
+    $tracks = $dto->tracks();
+    
+    $uniqueTracks = $tracks->unique(function ($track) {
+        return ($track['id'] ?? '') . '|' . 
+               ($track['duration_ms'] ?? '') . '|' . 
+               ($track['popularity'] ?? '');
+    });
+
+    return $next($dto->withTracks($uniqueTracks->values()));
+}
+```
+
+## 13. Updated Design Patterns
+
+### Current Pattern Implementation:
+
+1. **Service Layer Pattern**: Database operations through dedicated services
+2. **Orchestrator Pattern**: Complex workflow coordination
+3. **DTO Pattern**: Type-safe data transfer
+4. **Transformer Pattern**: DTO creation logic separation
+5. **Pipeline Pattern**: Composable data transformations
+6. **Decorator Pattern (Simplified)**: Single-responsibility decorators
+7. **Composition over Inheritance**: SpotifyClient uses ExternalClient
+8. **Specialized Inheritance**: SpotifyTracksClient, SpotifyPlaylistsClient extend SpotifyClient
+
+### Jobs Simplified
+Jobs now only:
+1. Fetch data from Spotify (via specialized clients)
+2. Create DTOs (via transformers)
+3. Dispatch to orchestrators or services
+4. Handle logging and error reporting
+
+All business logic moved to services and orchestrators.
+
+## 14. SOLID Principles in Practice
+
+**Single Responsibility**
+- Services: Database operations for one entity
+- Orchestrators: Coordinate one workflow
+- Pipeline handlers: One transformation
+- Jobs: Dispatch and coordinate
+
+**Open/Closed**
+- Add pipeline handlers without modifying existing code
+- Extend clients without modifying base classes
+- Add decorators without changing interface
+
+**Liskov Substitution**
+- SpotifyTracksClient substitutes SpotifyClient
+- All decorators implement HttpClientInterface
+
+**Interface Segregation**
+- HttpClientInterface only requires `request()`
+- Configuration methods not in interface
+
+**Dependency Inversion**
+- Jobs depend on service interfaces
+- Services injected via constructor
+- Easy to mock for testing

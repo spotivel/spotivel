@@ -1,0 +1,32 @@
+{
+  "id": "37i9dQZF1DXcBWIGoYBM5M",
+  "name": "Today's Top Hits",
+  "description": "The Weeknd is on top of the Hottest 50!",
+  "public": true,
+  "collaborative": false,
+  "type": "playlist",
+  "uri": "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M",
+  "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXcBWIGoYBM5M",
+  "external_urls": {
+    "spotify": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+  },
+  "owner": {
+    "id": "spotify",
+    "display_name": "Spotify",
+    "uri": "spotify:user:spotify",
+    "href": "https://api.spotify.com/v1/users/spotify",
+    "external_urls": {
+      "spotify": "https://open.spotify.com/user/spotify"
+    }
+  },
+  "tracks": {
+    "total": 50
+  },
+  "images": [
+    {
+      "url": "https://i.scdn.co/image/example_playlist",
+      "height": 640,
+      "width": 640
+    }
+  ]
+}
