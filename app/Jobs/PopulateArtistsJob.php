@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Artist;
+use App\Services\Database\ArtistService;
 use App\Services\SpotifyClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +18,7 @@ class PopulateArtistsJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(SpotifyClient $spotifyClient): void
+    public function handle(SpotifyClient $spotifyClient, ArtistService $artistService): void
     {
         Log::info('Starting artist population from Spotify');
 
@@ -31,17 +31,7 @@ class PopulateArtistsJob implements ShouldQueue
 
             if (isset($response['artists']['items'])) {
                 foreach ($response['artists']['items'] as $artistData) {
-                    Artist::updateOrCreate(
-                        ['spotify_id' => $artistData['id']],
-                        [
-                            'name' => $artistData['name'],
-                            'popularity' => $artistData['popularity'] ?? null,
-                            'followers' => $artistData['followers']['total'] ?? null,
-                            'uri' => $artistData['uri'],
-                            'href' => $artistData['href'],
-                            'external_url' => $artistData['external_urls']['spotify'] ?? null,
-                        ]
-                    );
+                    $artistService->createOrUpdate($artistData);
                 }
             }
 

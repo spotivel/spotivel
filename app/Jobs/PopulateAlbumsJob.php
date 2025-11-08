@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Album;
+use App\Services\Database\AlbumService;
 use App\Services\SpotifyClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +18,7 @@ class PopulateAlbumsJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(SpotifyClient $spotifyClient): void
+    public function handle(SpotifyClient $spotifyClient, AlbumService $albumService): void
     {
         Log::info('Starting album population from Spotify');
 
@@ -32,19 +32,7 @@ class PopulateAlbumsJob implements ShouldQueue
                 foreach ($response['items'] as $item) {
                     $albumData = $item['album'];
 
-                    Album::updateOrCreate(
-                        ['spotify_id' => $albumData['id']],
-                        [
-                            'name' => $albumData['name'],
-                            'album_type' => $albumData['album_type'] ?? null,
-                            'release_date' => $albumData['release_date'] ?? null,
-                            'release_date_precision' => $albumData['release_date_precision'] ?? null,
-                            'total_tracks' => $albumData['total_tracks'] ?? null,
-                            'uri' => $albumData['uri'],
-                            'href' => $albumData['href'],
-                            'external_url' => $albumData['external_urls']['spotify'] ?? null,
-                        ]
-                    );
+                    $albumService->createOrUpdate($albumData);
                 }
             }
 

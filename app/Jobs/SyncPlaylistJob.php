@@ -4,7 +4,9 @@ namespace App\Jobs;
 
 use App\DTOs\PlaylistSyncDTO;
 use App\Models\Playlist;
-use App\Models\Track;
+use App\Services\Database\ArtistService;
+use App\Services\Database\PlaylistService;
+use App\Services\Database\TrackService;
 use App\Services\SpotifyClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,8 +30,12 @@ class SyncPlaylistJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(SpotifyClient $spotifyClient): void
-    {
+    public function handle(
+        SpotifyClient $spotifyClient,
+        TrackService $trackService,
+        ArtistService $artistService,
+        PlaylistService $playlistService
+    ): void {
         $playlist = Playlist::findOrFail($this->playlistId);
 
         Log::info("Syncing playlist: {$playlist->name} ({$playlist->spotify_id})");
@@ -60,7 +66,7 @@ class SyncPlaylistJob implements ShouldQueue
                 ->thenReturn();
 
             // Sync tracks to database and attach to playlist
-            $this->syncTracksToDatabase($processedDTO, $playlist);
+            $this->syncTracksToDatabase($processedDTO, $playlist, $trackService, $artistService, $playlistService);
 
             Log::info("Playlist sync completed: {$playlist->name}");
         } catch (\Exception $e) {
@@ -107,43 +113,27 @@ class SyncPlaylistJob implements ShouldQueue
     /**
      * Sync tracks to database and attach to playlist.
      */
-    private function syncTracksToDatabase(PlaylistSyncDTO $dto, Playlist $playlist): void
-    {
+    private function syncTracksToDatabase(
+        PlaylistSyncDTO $dto,
+        Playlist $playlist,
+        TrackService $trackService,
+        ArtistService $artistService,
+        PlaylistService $playlistService
+    ): void {
         $trackIds = [];
         $position = 0;
 
         foreach ($dto->getTracks() as $trackData) {
-            $track = Track::updateOrCreate(
-                ['spotify_id' => $trackData['id']],
-                [
-                    'name' => $trackData['name'],
-                    'duration_ms' => $trackData['duration_ms'],
-                    'explicit' => $trackData['explicit'] ?? false,
-                    'popularity' => $trackData['popularity'] ?? null,
-                    'preview_url' => $trackData['preview_url'] ?? null,
-                    'uri' => $trackData['uri'],
-                    'href' => $trackData['href'],
-                    'external_url' => $trackData['external_urls']['spotify'] ?? null,
-                    'is_local' => $trackData['is_local'] ?? false,
-                ]
-            );
+            $track = $trackService->createOrUpdate($trackData);
 
             // Sync artists
             if (isset($trackData['artists'])) {
                 $artistIds = [];
                 foreach ($trackData['artists'] as $artistData) {
-                    $artist = \App\Models\Artist::updateOrCreate(
-                        ['spotify_id' => $artistData['id']],
-                        [
-                            'name' => $artistData['name'],
-                            'uri' => $artistData['uri'] ?? null,
-                            'href' => $artistData['href'] ?? null,
-                            'external_url' => $artistData['external_urls']['spotify'] ?? null,
-                        ]
-                    );
+                    $artist = $artistService->createOrUpdate($artistData);
                     $artistIds[] = $artist->id;
                 }
-                $track->artists()->sync($artistIds);
+                $trackService->syncArtists($track, $artistIds);
             }
 
             // Store track with position
@@ -151,6 +141,6 @@ class SyncPlaylistJob implements ShouldQueue
         }
 
         // Sync tracks to playlist
-        $playlist->tracks()->sync($trackIds);
+        $playlistService->syncTracks($playlist, $trackIds);
     }
 }
