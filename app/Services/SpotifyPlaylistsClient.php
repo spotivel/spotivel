@@ -68,6 +68,13 @@ class SpotifyPlaylistsClient extends SpotifyClient
      */
     public function replaceTracks(string $playlistId, array $trackUris): array
     {
+        // Early return for empty array - clear all tracks
+        if (empty($trackUris)) {
+            return $this->request()->put("/playlists/{$playlistId}/tracks", [
+                'uris' => [],
+            ])->json();
+        }
+
         // Spotify API accepts max 100 tracks per request
         $chunks = array_chunk($trackUris, 100);
 

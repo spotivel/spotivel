@@ -39,9 +39,12 @@ class SyncOrchestratorSpotifySyncTest extends TestCase
             'name' => 'Test Playlist',
         ]);
 
+        $track1 = \App\Models\Track::factory()->create(['spotify_id' => 'track1']);
+        $track2 = \App\Models\Track::factory()->create(['spotify_id' => 'track2']);
+
         $tracks = collect([
-            ['id' => 'track1', 'name' => 'Track 1', 'uri' => 'spotify:track:track1'],
-            ['id' => 'track2', 'name' => 'Track 2', 'uri' => 'spotify:track:track2'],
+            ['id' => 'track1', 'name' => 'Track 1', 'uri' => 'spotify:track:track1', 'duration_ms' => 180000, 'explicit' => false, 'href' => 'https://api.spotify.com/v1/tracks/track1', 'external_urls' => ['spotify' => 'https://open.spotify.com/track/track1']],
+            ['id' => 'track2', 'name' => 'Track 2', 'uri' => 'spotify:track:track2', 'duration_ms' => 200000, 'explicit' => false, 'href' => 'https://api.spotify.com/v1/tracks/track2', 'external_urls' => ['spotify' => 'https://open.spotify.com/track/track2']],
         ]);
 
         $dto = new PlaylistSyncDTO(
@@ -68,7 +71,7 @@ class SyncOrchestratorSpotifySyncTest extends TestCase
         // Mock database services for saving
         $trackService->shouldReceive('createOrUpdate')
             ->times(2)
-            ->andReturn((object) ['id' => 1]);
+            ->andReturn($track1, $track2);
 
         $playlistService->shouldReceive('syncTracks')
             ->once();
@@ -104,8 +107,10 @@ class SyncOrchestratorSpotifySyncTest extends TestCase
             'name' => 'Test Playlist',
         ]);
 
+        $track1 = \App\Models\Track::factory()->create(['spotify_id' => 'track1']);
+
         $tracks = collect([
-            ['id' => 'track1', 'name' => 'Track 1', 'uri' => 'spotify:track:track1'],
+            ['id' => 'track1', 'name' => 'Track 1', 'uri' => 'spotify:track:track1', 'duration_ms' => 180000, 'explicit' => false, 'href' => 'https://api.spotify.com/v1/tracks/track1', 'external_urls' => ['spotify' => 'https://open.spotify.com/track/track1']],
         ]);
 
         $dto = new PlaylistSyncDTO(
@@ -122,7 +127,7 @@ class SyncOrchestratorSpotifySyncTest extends TestCase
         // Mock database services
         $trackService->shouldReceive('createOrUpdate')
             ->once()
-            ->andReturn((object) ['id' => 1]);
+            ->andReturn($track1);
 
         $playlistService->shouldReceive('syncTracks')
             ->once();
