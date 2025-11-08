@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Contracts\HttpClientInterface;
+use App\Enums\HttpMethod;
+
 class SpotifyClient
 {
-    protected ExternalClient $client;
+    protected HttpClientInterface $client;
     protected string $accessToken;
 
     /**
@@ -36,16 +39,29 @@ class SpotifyClient
     /**
      * Get the underlying external client.
      */
-    public function getClient(): ExternalClient
+    public function getClient(): HttpClientInterface
     {
         return $this->client;
     }
 
     /**
-     * Get a configured HTTP request instance for Spotify API.
+     * Make an HTTP request using the specified method (like Guzzle).
+     * 
+     * @param HttpMethod $method The HTTP method to use
+     * @param string $uri The URI to request
+     * @param array $options Request options (query params, body, etc.)
+     * @return mixed
      */
-    public function request(): \Illuminate\Http\Client\PendingRequest
+    public function request(HttpMethod $method, string $uri, array $options = []): mixed
     {
-        return $this->client->request();
+        $pendingRequest = $this->client->request();
+        
+        return match($method) {
+            HttpMethod::GET => $pendingRequest->get($uri, $options['query'] ?? [])->json(),
+            HttpMethod::POST => $pendingRequest->post($uri, $options['body'] ?? $options)->json(),
+            HttpMethod::PUT => $pendingRequest->put($uri, $options['body'] ?? $options)->json(),
+            HttpMethod::DELETE => $pendingRequest->delete($uri, $options['body'] ?? [])->json(),
+            HttpMethod::PATCH => $pendingRequest->patch($uri, $options['body'] ?? $options)->json(),
+        };
     }
 }

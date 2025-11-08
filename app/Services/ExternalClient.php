@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
+use App\Contracts\HttpClientInterface;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
-class ExternalClient
+class ExternalClient implements HttpClientInterface
 {
     protected string $baseUrl;
     protected array $headers = [];

@@ -9,6 +9,7 @@ class NormalizePlaylistTrackDataHandler
 {
     /**
      * Handle the pipeline to normalize track data in playlist DTO.
+     * Uses Collection map() for functional transformation.
      *
      * @param  PlaylistSyncDTO  $dto
      * @param  Closure  $next
@@ -16,17 +17,18 @@ class NormalizePlaylistTrackDataHandler
      */
     public function handle(PlaylistSyncDTO $dto, Closure $next)
     {
-        $tracks = $dto->getTracks();
+        $tracks = $dto->tracks();
         
-        // Normalize track data
-        $normalizedTracks = array_map(function ($track) {
+        // Normalize track data using Collection
+        $normalizedTracks = $tracks->map(function ($track) {
             return array_merge($track, [
                 'name' => trim($track['name'] ?? ''),
                 'explicit' => (bool) ($track['explicit'] ?? false),
                 'is_local' => (bool) ($track['is_local'] ?? false),
                 'duration_ms' => (int) ($track['duration_ms'] ?? 0),
+                'popularity' => (int) ($track['popularity'] ?? 0),
             ]);
-        }, $tracks);
+        });
 
         return $next($dto->withTracks($normalizedTracks));
     }

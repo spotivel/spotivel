@@ -9,6 +9,7 @@ class ValidatePlaylistTracksHandler
 {
     /**
      * Handle the pipeline to validate tracks in playlist DTO.
+     * Uses Collection filter() for functional filtering.
      *
      * @param  PlaylistSyncDTO  $dto
      * @param  Closure  $next
@@ -16,18 +17,15 @@ class ValidatePlaylistTracksHandler
      */
     public function handle(PlaylistSyncDTO $dto, Closure $next)
     {
-        $tracks = $dto->getTracks();
+        $tracks = $dto->tracks();
         
-        // Filter out invalid tracks (missing required fields)
-        $validTracks = array_filter($tracks, function ($track) {
+        // Filter out invalid tracks using Collection
+        $validTracks = $tracks->filter(function ($track) {
             return !empty($track['id']) 
                 && !empty($track['name']) 
                 && isset($track['duration_ms'])
                 && $track['duration_ms'] > 0;
-        });
-
-        // Re-index array
-        $validTracks = array_values($validTracks);
+        })->values(); // Re-index the collection
 
         return $next($dto->withTracks($validTracks));
     }

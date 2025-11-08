@@ -2,22 +2,21 @@
 
 namespace App\Services\Decorators;
 
-use App\Services\ExternalClient;
+use App\Contracts\HttpClientInterface;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Log;
 
-class HttpClientExceptionDecorator extends ExternalClient
+class HttpClientExceptionDecorator implements HttpClientInterface
 {
     public function __construct(
-        protected ExternalClient $client
+        protected HttpClientInterface $client
     ) {
-        // Don't call parent constructor as we're decorating
     }
 
     /**
      * Set the base URL for the client.
      */
-    public function setBaseUrl(string $url): ExternalClient
+    public function setBaseUrl(string $url): self
     {
         $this->client->setBaseUrl($url);
         return $this;
@@ -26,7 +25,7 @@ class HttpClientExceptionDecorator extends ExternalClient
     /**
      * Set headers for the client.
      */
-    public function setHeaders(array $headers): ExternalClient
+    public function setHeaders(array $headers): self
     {
         $this->client->setHeaders($headers);
         return $this;
@@ -35,7 +34,7 @@ class HttpClientExceptionDecorator extends ExternalClient
     /**
      * Set the timeout for requests.
      */
-    public function setTimeout(int $timeout): ExternalClient
+    public function setTimeout(int $timeout): self
     {
         $this->client->setTimeout($timeout);
         return $this;

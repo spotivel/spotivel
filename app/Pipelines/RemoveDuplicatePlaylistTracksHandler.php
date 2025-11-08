@@ -9,6 +9,7 @@ class RemoveDuplicatePlaylistTracksHandler
 {
     /**
      * Handle the pipeline to remove duplicate tracks from playlist DTO.
+     * Uses Collection unique() with closure for spotify_id|duration_ms|popularity.
      *
      * @param  PlaylistSyncDTO  $dto
      * @param  Closure  $next
@@ -16,19 +17,15 @@ class RemoveDuplicatePlaylistTracksHandler
      */
     public function handle(PlaylistSyncDTO $dto, Closure $next)
     {
-        $tracks = $dto->getTracks();
+        $tracks = $dto->tracks();
         
-        // Remove duplicates based on Spotify ID
-        $seen = [];
-        $uniqueTracks = [];
-        
-        foreach ($tracks as $track) {
-            if (!isset($seen[$track['id']])) {
-                $uniqueTracks[] = $track;
-                $seen[$track['id']] = true;
-            }
-        }
+        // Remove duplicates using unique() with closure
+        $uniqueTracks = $tracks->unique(function ($track) {
+            return ($track['id'] ?? '') . '|' . 
+                   ($track['duration_ms'] ?? '') . '|' . 
+                   ($track['popularity'] ?? '');
+        });
 
-        return $next($dto->withTracks($uniqueTracks));
+        return $next($dto->withTracks($uniqueTracks->values()));
     }
 }
