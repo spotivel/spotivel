@@ -22,8 +22,6 @@ class Album extends Model
         'release_date',
         'release_date_precision',
         'total_tracks',
-        'available_markets',
-        'images',
         'uri',
         'href',
         'external_url',
@@ -35,8 +33,6 @@ class Album extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'available_markets' => 'array',
-        'images' => 'array',
         'total_tracks' => 'integer',
     ];
 

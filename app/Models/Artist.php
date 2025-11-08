@@ -18,11 +18,9 @@ class Artist extends Model
     protected $fillable = [
         'spotify_id',
         'name',
-        'genres',
         'popularity',
         'followers',
         'is_interesting',
-        'images',
         'uri',
         'href',
         'external_url',
@@ -34,8 +32,6 @@ class Artist extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'genres' => 'array',
-        'images' => 'array',
         'popularity' => 'integer',
         'followers' => 'integer',
         'is_interesting' => 'boolean',

@@ -29,7 +29,6 @@ class Track extends Model
         'external_url',
         'is_local',
         'is_interesting',
-        'available_markets',
     ];
 
     /**
@@ -45,7 +44,6 @@ class Track extends Model
         'popularity' => 'integer',
         'is_local' => 'boolean',
         'is_interesting' => 'boolean',
-        'available_markets' => 'array',
     ];
 
     /**

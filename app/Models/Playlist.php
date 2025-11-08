@@ -22,7 +22,6 @@ class Playlist extends Model
         'public',
         'collaborative',
         'total_tracks',
-        'images',
         'uri',
         'href',
         'external_url',
@@ -39,7 +38,6 @@ class Playlist extends Model
         'public' => 'boolean',
         'collaborative' => 'boolean',
         'total_tracks' => 'integer',
-        'images' => 'array',
     ];
 
     /**
