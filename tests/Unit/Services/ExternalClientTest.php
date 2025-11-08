@@ -38,13 +38,10 @@ class ExternalClientTest extends TestCase
         $this->assertInstanceOf(ExternalClient::class, $result);
     }
 
-    public function test_external_client_has_http_methods(): void
+    public function test_external_client_has_request_method(): void
     {
         $client = new ExternalClient();
         
-        $this->assertTrue(method_exists($client, 'get'));
-        $this->assertTrue(method_exists($client, 'post'));
-        $this->assertTrue(method_exists($client, 'put'));
-        $this->assertTrue(method_exists($client, 'delete'));
+        $this->assertTrue(method_exists($client, 'request'));
     }
 }

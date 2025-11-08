@@ -48,44 +48,12 @@ class ExternalClient
     }
 
     /**
-     * Get a configured HTTP client instance.
+     * Get a configured HTTP request instance.
      */
-    protected function client(): PendingRequest
+    public function request(): PendingRequest
     {
         return Http::baseUrl($this->baseUrl)
             ->withHeaders($this->headers)
             ->timeout($this->timeout);
-    }
-
-    /**
-     * Make a GET request.
-     */
-    public function get(string $url, array $query = []): mixed
-    {
-        return $this->client()->get($url, $query)->json();
-    }
-
-    /**
-     * Make a POST request.
-     */
-    public function post(string $url, array $data = []): mixed
-    {
-        return $this->client()->post($url, $data)->json();
-    }
-
-    /**
-     * Make a PUT request.
-     */
-    public function put(string $url, array $data = []): mixed
-    {
-        return $this->client()->put($url, $data)->json();
-    }
-
-    /**
-     * Make a DELETE request.
-     */
-    public function delete(string $url): mixed
-    {
-        return $this->client()->delete($url)->json();
     }
 }

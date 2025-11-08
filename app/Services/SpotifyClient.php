@@ -42,34 +42,10 @@ class SpotifyClient
     }
 
     /**
-     * Make a GET request to the Spotify API.
+     * Get a configured HTTP request instance for Spotify API.
      */
-    protected function get(string $endpoint, array $query = []): mixed
+    public function request(): \Illuminate\Http\Client\PendingRequest
     {
-        return $this->client->get($endpoint, $query);
-    }
-
-    /**
-     * Make a POST request to the Spotify API.
-     */
-    protected function post(string $endpoint, array $data = []): mixed
-    {
-        return $this->client->post($endpoint, $data);
-    }
-
-    /**
-     * Make a PUT request to the Spotify API.
-     */
-    protected function put(string $endpoint, array $data = []): mixed
-    {
-        return $this->client->put($endpoint, $data);
-    }
-
-    /**
-     * Make a DELETE request to the Spotify API.
-     */
-    protected function delete(string $endpoint): mixed
-    {
-        return $this->client->delete($endpoint);
+        return $this->client->request();
     }
 }

@@ -45,4 +45,11 @@ class SpotifyClientTest extends TestCase
         // SpotifyClient should use ExternalClient, not extend it
         $this->assertNotInstanceOf(ExternalClient::class, $client);
     }
+
+    public function test_spotify_client_has_request_method(): void
+    {
+        $client = new SpotifyClient();
+        
+        $this->assertTrue(method_exists($client, 'request'));
+    }
 }

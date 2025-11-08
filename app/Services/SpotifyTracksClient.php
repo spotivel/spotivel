@@ -9,7 +9,7 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function getTrack(string $trackId): mixed
     {
-        return $this->get("/tracks/{$trackId}");
+        return $this->request()->get("/tracks/{$trackId}")->json();
     }
 
     /**
@@ -17,9 +17,9 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function getTracks(array $trackIds): mixed
     {
-        return $this->get('/tracks', [
+        return $this->request()->get('/tracks', [
             'ids' => implode(',', $trackIds),
-        ]);
+        ])->json();
     }
 
     /**
@@ -27,10 +27,10 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function getAlbumTracks(string $albumId, int $limit = 20, int $offset = 0): mixed
     {
-        return $this->get("/albums/{$albumId}/tracks", [
+        return $this->request()->get("/albums/{$albumId}/tracks", [
             'limit' => $limit,
             'offset' => $offset,
-        ]);
+        ])->json();
     }
 
     /**
@@ -38,10 +38,10 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function getSavedTracks(int $limit = 20, int $offset = 0): mixed
     {
-        return $this->get('/me/tracks', [
+        return $this->request()->get('/me/tracks', [
             'limit' => $limit,
             'offset' => $offset,
-        ]);
+        ])->json();
     }
 
     /**
@@ -49,9 +49,9 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function saveTracks(array $trackIds): mixed
     {
-        return $this->put('/me/tracks', [
+        return $this->request()->put('/me/tracks', [
             'ids' => $trackIds,
-        ]);
+        ])->json();
     }
 
     /**
@@ -59,7 +59,7 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function removeSavedTracks(array $trackIds): mixed
     {
-        return $this->delete('/me/tracks?' . http_build_query(['ids' => implode(',', $trackIds)]));
+        return $this->request()->delete('/me/tracks?' . http_build_query(['ids' => implode(',', $trackIds)]))->json();
     }
 
     /**
@@ -67,9 +67,9 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function checkSavedTracks(array $trackIds): mixed
     {
-        return $this->get('/me/tracks/contains', [
+        return $this->request()->get('/me/tracks/contains', [
             'ids' => implode(',', $trackIds),
-        ]);
+        ])->json();
     }
 
     /**
@@ -77,7 +77,7 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function getTrackAudioFeatures(string $trackId): mixed
     {
-        return $this->get("/audio-features/{$trackId}");
+        return $this->request()->get("/audio-features/{$trackId}")->json();
     }
 
     /**
@@ -85,9 +85,9 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function getTracksAudioFeatures(array $trackIds): mixed
     {
-        return $this->get('/audio-features', [
+        return $this->request()->get('/audio-features', [
             'ids' => implode(',', $trackIds),
-        ]);
+        ])->json();
     }
 
     /**
@@ -95,7 +95,7 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function getTrackAudioAnalysis(string $trackId): mixed
     {
-        return $this->get("/audio-analysis/{$trackId}");
+        return $this->request()->get("/audio-analysis/{$trackId}")->json();
     }
 
     /**
@@ -103,9 +103,9 @@ class SpotifyTracksClient extends SpotifyClient
      */
     public function getRecommendations(array $seedTracks, int $limit = 20): mixed
     {
-        return $this->get('/recommendations', [
+        return $this->request()->get('/recommendations', [
             'seed_tracks' => implode(',', $seedTracks),
             'limit' => $limit,
-        ]);
+        ])->json();
     }
 }
