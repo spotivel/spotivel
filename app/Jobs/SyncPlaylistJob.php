@@ -7,7 +7,7 @@ use App\Models\Playlist;
 use App\Services\Database\ArtistService;
 use App\Services\Database\PlaylistService;
 use App\Services\Database\TrackService;
-use App\Services\SpotifyClient;
+use App\Services\SpotifyPlaylistsClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,7 +31,7 @@ class SyncPlaylistJob implements ShouldQueue
      * Execute the job.
      */
     public function handle(
-        SpotifyClient $spotifyClient,
+        SpotifyPlaylistsClient $playlistsClient,
         TrackService $trackService,
         ArtistService $artistService,
         PlaylistService $playlistService
@@ -41,8 +41,8 @@ class SyncPlaylistJob implements ShouldQueue
         Log::info("Syncing playlist: {$playlist->name} ({$playlist->spotify_id})");
 
         try {
-            // Fetch playlist tracks from Spotify
-            $tracks = $this->fetchPlaylistTracks($spotifyClient, $playlist->spotify_id);
+            // Fetch playlist tracks from Spotify using the specialized client
+            $tracks = $playlistsClient->list($playlist->spotify_id);
 
             // Create DTO
             $dto = new PlaylistSyncDTO(
@@ -73,41 +73,6 @@ class SyncPlaylistJob implements ShouldQueue
             Log::error("Playlist sync failed for {$playlist->name}: ".$e->getMessage());
             throw $e;
         }
-    }
-
-    /**
-     * Fetch all tracks from a Spotify playlist.
-     */
-    private function fetchPlaylistTracks(SpotifyClient $spotifyClient, string $playlistId): array
-    {
-        $tracks = [];
-        $offset = 0;
-        $limit = 100;
-        $hasMore = true;
-
-        while ($hasMore) {
-            $response = $spotifyClient->request()->get("/playlists/{$playlistId}/tracks", [
-                'limit' => $limit,
-                'offset' => $offset,
-                'fields' => 'items(track(id,name,duration_ms,explicit,popularity,uri,href,external_urls,artists,album,is_local)),next',
-            ])->json();
-
-            if (isset($response['items'])) {
-                foreach ($response['items'] as $item) {
-                    if (isset($item['track']) && ! empty($item['track']['id'])) {
-                        $tracks[] = $item['track'];
-                    }
-                }
-            }
-
-            $offset += $limit;
-
-            if (! isset($response['next']) || $response['next'] === null) {
-                $hasMore = false;
-            }
-        }
-
-        return $tracks;
     }
 
     /**
