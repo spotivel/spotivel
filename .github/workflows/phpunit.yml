@@ -1,0 +1,32 @@
+name: PHPUnit
+
+on:
+  workflow_dispatch:
+    inputs:
+      php-version:
+        description: 'PHP version'
+        required: true
+        default: '8.2'
+        type: choice
+        options:
+          - '8.2'
+          - '8.3'
+
+jobs:
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ github.event.inputs.php-version }}
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --colors=always
