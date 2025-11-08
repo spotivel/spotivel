@@ -58,4 +58,31 @@ class SpotifyPlaylistsClient extends SpotifyClient
             'fields' => 'items(track(id,name,duration_ms,explicit,popularity,uri,href,external_urls,artists,album,is_local)),next',
         ])->json();
     }
+
+    /**
+     * Replace all tracks in a playlist.
+     *
+     * @param  string  $playlistId  The Spotify playlist ID
+     * @param  array  $trackUris  Array of Spotify track URIs
+     * @return array Response from Spotify API
+     */
+    public function replaceTracks(string $playlistId, array $trackUris): array
+    {
+        // Spotify API accepts max 100 tracks per request
+        $chunks = array_chunk($trackUris, 100);
+
+        // Replace with first chunk
+        $response = $this->request()->put("/playlists/{$playlistId}/tracks", [
+            'uris' => $chunks[0],
+        ])->json();
+
+        // Add remaining chunks if any
+        for ($i = 1; $i < count($chunks); $i++) {
+            $this->request()->post("/playlists/{$playlistId}/tracks", [
+                'uris' => $chunks[$i],
+            ])->json();
+        }
+
+        return $response;
+    }
 }

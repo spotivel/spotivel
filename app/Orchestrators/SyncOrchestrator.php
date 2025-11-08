@@ -8,7 +8,10 @@ use App\Models\Track;
 use App\Services\Database\ArtistService;
 use App\Services\Database\PlaylistService;
 use App\Services\Database\TrackService;
+use App\Services\SpotifyPlaylistsClient;
+use App\Transformers\PlaylistSyncDTOTransformer;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\Log;
 
 class SyncOrchestrator
 {
@@ -17,10 +20,17 @@ class SyncOrchestrator
      */
     protected array $handlers = [];
 
+    /**
+     * Whether to sync back to Spotify API after saving to database.
+     */
+    protected bool $syncToSpotify = false;
+
     public function __construct(
         protected TrackService $trackService,
         protected ArtistService $artistService,
-        protected PlaylistService $playlistService
+        protected PlaylistService $playlistService,
+        protected SpotifyPlaylistsClient $playlistsClient,
+        protected PlaylistSyncDTOTransformer $transformer
     ) {}
 
     /**
@@ -29,6 +39,16 @@ class SyncOrchestrator
     public function setHandlers(array $handlers): self
     {
         $this->handlers = $handlers;
+
+        return $this;
+    }
+
+    /**
+     * Enable or disable syncing back to Spotify API.
+     */
+    public function setSyncToSpotify(bool $syncToSpotify): self
+    {
+        $this->syncToSpotify = $syncToSpotify;
 
         return $this;
     }
@@ -49,6 +69,7 @@ class SyncOrchestrator
         // Early return if no handlers configured
         if (empty($this->handlers)) {
             $this->saveToDatabase($dto, $entity);
+            $this->syncToSpotifyApi($dto, $entity);
 
             return;
         }
@@ -61,6 +82,9 @@ class SyncOrchestrator
 
         // Save to database
         $this->saveToDatabase($processedDTO, $entity);
+
+        // Sync to Spotify API if enabled
+        $this->syncToSpotifyApi($processedDTO, $entity);
     }
 
     /**
@@ -135,5 +159,35 @@ class SyncOrchestrator
             }
             $this->trackService->syncArtists($track, $artistIds);
         }
+    }
+
+    /**
+     * Sync processed data back to Spotify API.
+     * Only syncs for Playlist entities when enabled.
+     */
+    protected function syncToSpotifyApi(SyncDTOInterface $dto, object $entity): void
+    {
+        // Early return if sync to Spotify is not enabled
+        if (! $this->syncToSpotify) {
+            return;
+        }
+
+        // Handle Playlist sync to Spotify
+        if ($entity instanceof Playlist) {
+            try {
+                $trackUris = $this->transformer->tracksToSpotifyUris($dto);
+
+                Log::info("Syncing {$entity->name} to Spotify API with ".count($trackUris).' tracks');
+
+                $this->playlistsClient->replaceTracks($entity->spotify_id, $trackUris);
+
+                Log::info("Successfully synced {$entity->name} to Spotify API");
+            } catch (\Exception $e) {
+                Log::error("Failed to sync playlist to Spotify API: {$e->getMessage()}");
+                throw $e;
+            }
+        }
+
+        // Extensible for other entity types
     }
 }

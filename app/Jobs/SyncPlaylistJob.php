@@ -55,7 +55,11 @@ class SyncPlaylistJob implements ShouldQueue
                 \App\Pipelines\RemoveDuplicatePlaylistTracksHandler::class,
                 \App\Pipelines\NormalizePlaylistTrackDataHandler::class,
                 \App\Pipelines\ValidatePlaylistTracksHandler::class,
+                \App\Pipelines\AddLiveVersionsHandler::class,
             ]);
+
+            // Enable syncing back to Spotify API
+            $orchestrator->setSyncToSpotify(true);
 
             // Dispatch to orchestrator for processing and saving
             $orchestrator->sync($dto, $playlist);

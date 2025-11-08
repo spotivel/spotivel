@@ -2,8 +2,11 @@
 
 namespace App\Filament\Widgets;
 
+use App\Jobs\PopulatePlaylistsJob;
 use App\Models\Playlist;
+use Filament\Notifications\Notification;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
@@ -36,6 +39,26 @@ class PlaylistsTableWidget extends BaseWidget
                     ->sortable()
                     ->since(),
             ])
-            ->heading('Recent Playlists');
+            ->heading('Recent Playlists')
+            ->headerActions([
+                Action::make('sync_playlists')
+                    ->label('Sync All Playlists')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Sync All Playlists')
+                    ->modalDescription('This will fetch all your playlists from Spotify, sync their tracks (including finding live versions), and update both the database and Spotify. This process may take several minutes.')
+                    ->modalSubmitActionLabel('Start Sync')
+                    ->action(function () {
+                        // Dispatch the populate job which will chain to sync jobs
+                        PopulatePlaylistsJob::dispatch();
+
+                        Notification::make()
+                            ->title('Playlist sync started')
+                            ->body('Your playlists are being synced in the background. This may take several minutes.')
+                            ->success()
+                            ->send();
+                    }),
+            ]);
     }
 }
