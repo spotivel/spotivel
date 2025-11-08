@@ -48,8 +48,11 @@ class AddLiveVersionsHandler
 
                 // Add live versions to collection
                 foreach ($liveVersions as $liveTrack) {
-                    // Ensure it's not the same track we already have
-                    if (isset($liveTrack['id']) && $liveTrack['id'] !== $track['id']) {
+                    // Ensure it's not the same track we already have (check spotify_id)
+                    $liveSpotifyId = $liveTrack['id'] ?? null;
+                    $originalSpotifyId = $track['id'] ?? null;
+
+                    if ($liveSpotifyId && $liveSpotifyId !== $originalSpotifyId) {
                         $tracksWithLive->push($liveTrack);
                     }
                 }

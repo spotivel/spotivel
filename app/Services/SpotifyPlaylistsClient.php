@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\HttpMethod;
+
 class SpotifyPlaylistsClient extends SpotifyClient
 {
     /**
@@ -61,6 +63,7 @@ class SpotifyPlaylistsClient extends SpotifyClient
 
     /**
      * Replace all tracks in a playlist.
+     * Uses Spotify API's special two-step process: first chunk replaces, subsequent chunks append.
      *
      * @param  string  $playlistId  The Spotify playlist ID
      * @param  array  $trackUris  Array of Spotify track URIs
@@ -70,23 +73,23 @@ class SpotifyPlaylistsClient extends SpotifyClient
     {
         // Early return for empty array - clear all tracks
         if (empty($trackUris)) {
-            return $this->request()->put("/playlists/{$playlistId}/tracks", [
-                'uris' => [],
+            return $this->request(HttpMethod::PUT, "/playlists/{$playlistId}/tracks", [
+                'json' => ['uris' => []],
             ])->json();
         }
 
         // Spotify API accepts max 100 tracks per request
         $chunks = array_chunk($trackUris, 100);
 
-        // Replace with first chunk
-        $response = $this->request()->put("/playlists/{$playlistId}/tracks", [
-            'uris' => $chunks[0],
+        // Replace with first chunk using PUT
+        $response = $this->request(HttpMethod::PUT, "/playlists/{$playlistId}/tracks", [
+            'json' => ['uris' => $chunks[0]],
         ])->json();
 
-        // Add remaining chunks if any
+        // Add remaining chunks using POST to different endpoint
         for ($i = 1; $i < count($chunks); $i++) {
-            $this->request()->post("/playlists/{$playlistId}/tracks", [
-                'uris' => $chunks[$i],
+            $this->request(HttpMethod::POST, "/playlists/{$playlistId}/tracks", [
+                'json' => ['uris' => $chunks[$i]],
             ])->json();
         }
 

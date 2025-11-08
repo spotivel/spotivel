@@ -8,7 +8,6 @@ use App\Models\Track;
 use App\Services\Database\ArtistService;
 use App\Services\Database\PlaylistService;
 use App\Services\Database\TrackService;
-use App\Services\SpotifyPlaylistsClient;
 use App\Transformers\PlaylistSyncDTOTransformer;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Log;
@@ -29,7 +28,6 @@ class SyncOrchestrator
         protected TrackService $trackService,
         protected ArtistService $artistService,
         protected PlaylistService $playlistService,
-        protected SpotifyPlaylistsClient $playlistsClient,
         protected PlaylistSyncDTOTransformer $transformer
     ) {}
 
@@ -164,6 +162,7 @@ class SyncOrchestrator
     /**
      * Sync processed data back to Spotify API.
      * Only syncs for Playlist entities when enabled.
+     * Dispatches a separate job to handle the Spotify API sync.
      */
     protected function syncToSpotifyApi(SyncDTOInterface $dto, object $entity): void
     {
@@ -177,13 +176,14 @@ class SyncOrchestrator
             try {
                 $trackUris = $this->transformer->tracksToSpotifyUris($dto);
 
-                Log::info("Syncing {$entity->name} to Spotify API with ".count($trackUris).' tracks');
+                Log::info("Dispatching Spotify sync job for {$entity->name} with ".count($trackUris).' tracks');
 
-                $this->playlistsClient->replaceTracks($entity->spotify_id, $trackUris);
+                // Dispatch separate job to handle Spotify API sync
+                \App\Jobs\SyncPlaylistToSpotifyJob::dispatch($entity->id, $trackUris);
 
-                Log::info("Successfully synced {$entity->name} to Spotify API");
+                Log::info("Spotify sync job dispatched for {$entity->name}");
             } catch (\Exception $e) {
-                Log::error("Failed to sync playlist to Spotify API: {$e->getMessage()}");
+                Log::error("Failed to dispatch Spotify sync job: {$e->getMessage()}");
                 throw $e;
             }
         }

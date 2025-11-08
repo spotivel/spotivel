@@ -2,30 +2,25 @@
 
 namespace Tests\Unit\Services;
 
-use App\Contracts\HttpClientInterface;
+use App\Services\ExternalClient;
 use App\Services\SpotifyPlaylistsClient;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\Response;
-use Mockery;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class SpotifyPlaylistsClientReplaceTracksTest extends TestCase
 {
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
-    }
+    protected SpotifyPlaylistsClient $client;
 
-    /** @test */
-    public function it_has_replace_tracks_method(): void
+    protected function setUp(): void
     {
-        // Arrange
-        $httpClient = Mockery::mock(HttpClientInterface::class);
-        $client = new SpotifyPlaylistsClient($httpClient);
+        parent::setUp();
 
-        // Assert
-        $this->assertTrue(method_exists($client, 'replaceTracks'));
+        $httpClient = new ExternalClient(
+            baseUrl: 'https://api.spotify.com/v1',
+            headers: ['Authorization' => 'Bearer test-token']
+        );
+
+        $this->client = new SpotifyPlaylistsClient($httpClient);
     }
 
     /** @test */
@@ -38,165 +33,128 @@ class SpotifyPlaylistsClientReplaceTracksTest extends TestCase
             'spotify:track:track3',
         ];
 
-        $mockResponse = ['snapshot_id' => 'snapshot123'];
-
-        $pendingRequest = Mockery::mock(PendingRequest::class);
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive('json')
-            ->once()
-            ->andReturn($mockResponse);
-
-        $pendingRequest->shouldReceive('put')
-            ->once()
-            ->with('/playlists/playlist123/tracks', [
-                'uris' => $trackUris,
-            ])
-            ->andReturn($response);
-
-        $httpClient = Mockery::mock(HttpClientInterface::class);
-        $httpClient->shouldReceive('request')
-            ->once()
-            ->andReturn($pendingRequest);
-
-        $client = new SpotifyPlaylistsClient($httpClient);
+        Http::fake([
+            'https://api.spotify.com/v1/playlists/playlist123/tracks*' => Http::response([
+                'snapshot_id' => 'snapshot123',
+            ], 200),
+        ]);
 
         // Act
-        $result = $client->replaceTracks('playlist123', $trackUris);
+        $result = $this->client->replaceTracks('playlist123', $trackUris);
 
         // Assert
         $this->assertIsArray($result);
         $this->assertEquals('snapshot123', $result['snapshot_id']);
+
+        Http::assertSent(function ($request) {
+            return $request->method() === 'PUT' &&
+                   str_contains($request->url(), 'playlists/playlist123/tracks');
+        });
     }
 
     /** @test */
     public function it_handles_large_track_lists_with_chunking(): void
     {
         // Arrange - Create 150 track URIs (more than 100 limit)
-        $trackUris = [];
-        for ($i = 1; $i <= 150; $i++) {
-            $trackUris[] = "spotify:track:track{$i}";
-        }
+        $trackUris = array_map(fn ($i) => "spotify:track:track{$i}", range(1, 150));
 
-        $firstChunk = array_slice($trackUris, 0, 100);
-        $secondChunk = array_slice($trackUris, 100, 50);
-
-        $mockResponse = ['snapshot_id' => 'snapshot123'];
-
-        $pendingRequest = Mockery::mock(PendingRequest::class);
-        $putResponse = Mockery::mock(Response::class);
-        $postResponse = Mockery::mock(Response::class);
-
-        $putResponse->shouldReceive('json')
-            ->once()
-            ->andReturn($mockResponse);
-
-        $postResponse->shouldReceive('json')
-            ->once()
-            ->andReturn(['snapshot_id' => 'snapshot456']);
-
-        // First chunk uses PUT to replace
-        $pendingRequest->shouldReceive('put')
-            ->once()
-            ->with('/playlists/playlist123/tracks', [
-                'uris' => $firstChunk,
-            ])
-            ->andReturn($putResponse);
-
-        // Second chunk uses POST to add
-        $pendingRequest->shouldReceive('post')
-            ->once()
-            ->with('/playlists/playlist123/tracks', [
-                'uris' => $secondChunk,
-            ])
-            ->andReturn($postResponse);
-
-        $httpClient = Mockery::mock(HttpClientInterface::class);
-        $httpClient->shouldReceive('request')
-            ->times(2)
-            ->andReturn($pendingRequest);
-
-        $client = new SpotifyPlaylistsClient($httpClient);
+        Http::fake([
+            'https://api.spotify.com/v1/playlists/playlist123/tracks*' => Http::response([
+                'snapshot_id' => 'snapshot123',
+            ], 200),
+        ]);
 
         // Act
-        $result = $client->replaceTracks('playlist123', $trackUris);
+        $result = $this->client->replaceTracks('playlist123', $trackUris);
 
         // Assert
         $this->assertIsArray($result);
-        $this->assertEquals('snapshot123', $result['snapshot_id']);
+
+        // Should have 1 PUT request (first chunk) + 1 POST request (second chunk)
+        Http::assertSentCount(2);
+
+        Http::assertSent(function ($request) {
+            return $request->method() === 'PUT';
+        });
+
+        Http::assertSent(function ($request) {
+            return $request->method() === 'POST';
+        });
     }
 
     /** @test */
     public function it_handles_empty_track_list(): void
     {
         // Arrange
-        $trackUris = [];
-        $mockResponse = ['snapshot_id' => 'snapshot123'];
-
-        $pendingRequest = Mockery::mock(PendingRequest::class);
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive('json')
-            ->once()
-            ->andReturn($mockResponse);
-
-        $pendingRequest->shouldReceive('put')
-            ->once()
-            ->with('/playlists/playlist123/tracks', [
-                'uris' => [],
-            ])
-            ->andReturn($response);
-
-        $httpClient = Mockery::mock(HttpClientInterface::class);
-        $httpClient->shouldReceive('request')
-            ->once()
-            ->andReturn($pendingRequest);
-
-        $client = new SpotifyPlaylistsClient($httpClient);
+        Http::fake([
+            'https://api.spotify.com/v1/playlists/playlist123/tracks*' => Http::response([
+                'snapshot_id' => 'snapshot123',
+            ], 200),
+        ]);
 
         // Act
-        $result = $client->replaceTracks('playlist123', $trackUris);
+        $result = $this->client->replaceTracks('playlist123', []);
 
         // Assert
         $this->assertIsArray($result);
+
+        Http::assertSent(function ($request) use (&$requestBody) {
+            $requestBody = $request->data();
+
+            return $request->method() === 'PUT' &&
+                   isset($requestBody['uris']) &&
+                   empty($requestBody['uris']);
+        });
     }
 
     /** @test */
     public function it_replaces_exactly_100_tracks_without_chunking(): void
     {
         // Arrange - Exactly 100 tracks should not trigger chunking
-        $trackUris = [];
-        for ($i = 1; $i <= 100; $i++) {
-            $trackUris[] = "spotify:track:track{$i}";
-        }
+        $trackUris = array_map(fn ($i) => "spotify:track:track{$i}", range(1, 100));
 
-        $mockResponse = ['snapshot_id' => 'snapshot123'];
-
-        $pendingRequest = Mockery::mock(PendingRequest::class);
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive('json')
-            ->once()
-            ->andReturn($mockResponse);
-
-        $pendingRequest->shouldReceive('put')
-            ->once()
-            ->andReturn($response);
-
-        // Should NOT receive POST (no second chunk)
-        $pendingRequest->shouldNotReceive('post');
-
-        $httpClient = Mockery::mock(HttpClientInterface::class);
-        $httpClient->shouldReceive('request')
-            ->once()
-            ->andReturn($pendingRequest);
-
-        $client = new SpotifyPlaylistsClient($httpClient);
+        Http::fake([
+            'https://api.spotify.com/v1/playlists/playlist123/tracks*' => Http::response([
+                'snapshot_id' => 'snapshot123',
+            ], 200),
+        ]);
 
         // Act
-        $result = $client->replaceTracks('playlist123', $trackUris);
+        $result = $this->client->replaceTracks('playlist123', $trackUris);
 
         // Assert
         $this->assertIsArray($result);
+
+        // Should only have 1 PUT request, no POST
+        Http::assertSentCount(1);
+
+        Http::assertSent(function ($request) {
+            return $request->method() === 'PUT';
+        });
+    }
+
+    /** @test */
+    public function it_uses_json_format_for_request_body(): void
+    {
+        // Arrange
+        $trackUris = ['spotify:track:track1'];
+
+        Http::fake([
+            'https://api.spotify.com/v1/playlists/playlist123/tracks*' => Http::response([
+                'snapshot_id' => 'snapshot123',
+            ], 200),
+        ]);
+
+        // Act
+        $this->client->replaceTracks('playlist123', $trackUris);
+
+        // Assert
+        Http::assertSent(function ($request) {
+            $data = $request->data();
+
+            return isset($data['uris']) &&
+                   is_array($data['uris']) &&
+                   $data['uris'][0] === 'spotify:track:track1';
+        });
     }
 }
