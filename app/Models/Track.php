@@ -28,6 +28,7 @@ class Track extends Model
         'href',
         'external_url',
         'is_local',
+        'is_interesting',
         'available_markets',
     ];
 
@@ -43,6 +44,7 @@ class Track extends Model
         'track_number' => 'integer',
         'popularity' => 'integer',
         'is_local' => 'boolean',
+        'is_interesting' => 'boolean',
         'available_markets' => 'array',
     ];
 
@@ -60,5 +62,15 @@ class Track extends Model
     public function albums(): BelongsToMany
     {
         return $this->belongsToMany(Album::class);
+    }
+
+    /**
+     * Get the playlists that contain this track.
+     */
+    public function playlists(): BelongsToMany
+    {
+        return $this->belongsToMany(Playlist::class)
+            ->withPivot('position')
+            ->withTimestamps();
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Artist extends Model
+class Playlist extends Model
 {
     use HasFactory;
 
@@ -18,14 +18,16 @@ class Artist extends Model
     protected $fillable = [
         'spotify_id',
         'name',
-        'genres',
-        'popularity',
-        'followers',
-        'is_interesting',
+        'description',
+        'public',
+        'collaborative',
+        'total_tracks',
         'images',
         'uri',
         'href',
         'external_url',
+        'owner_id',
+        'owner_name',
     ];
 
     /**
@@ -34,26 +36,20 @@ class Artist extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'genres' => 'array',
+        'public' => 'boolean',
+        'collaborative' => 'boolean',
+        'total_tracks' => 'integer',
         'images' => 'array',
-        'popularity' => 'integer',
-        'followers' => 'integer',
-        'is_interesting' => 'boolean',
     ];
 
     /**
-     * Get the tracks for this artist.
+     * Get the tracks for this playlist.
      */
     public function tracks(): BelongsToMany
     {
-        return $this->belongsToMany(Track::class);
-    }
-
-    /**
-     * Get the albums for this artist.
-     */
-    public function albums(): BelongsToMany
-    {
-        return $this->belongsToMany(Album::class);
+        return $this->belongsToMany(Track::class)
+            ->withPivot('position')
+            ->withTimestamps()
+            ->orderBy('position');
     }
 }

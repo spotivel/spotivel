@@ -2,21 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TrackResource\Pages;
-use App\Models\Track;
+use App\Filament\Resources\PlaylistResource\Pages;
+use App\Models\Playlist;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class TrackResource extends Resource
+class PlaylistResource extends Resource
 {
-    protected static ?string $model = Track::class;
+    protected static ?string $model = Playlist::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-musical-note';
+    protected static ?string $navigationIcon = 'heroicon-o-queue-list';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
@@ -28,18 +28,17 @@ class TrackResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('duration_ms')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\Toggle::make('explicit')
+                Forms\Components\Textarea::make('description')
+                    ->maxLength(65535)
+                    ->columnSpanFull(),
+                Forms\Components\Toggle::make('public')
                     ->required(),
-                Forms\Components\Toggle::make('is_interesting')
-                    ->label('Mark as Interesting'),
-                Forms\Components\TextInput::make('popularity')
-                    ->numeric(),
-                Forms\Components\TextInput::make('preview_url')
-                    ->url()
-                    ->maxLength(255),
+                Forms\Components\Toggle::make('collaborative')
+                    ->required(),
+                Forms\Components\TextInput::make('total_tracks')
+                    ->required()
+                    ->numeric()
+                    ->default(0),
             ]);
     }
 
@@ -52,25 +51,23 @@ class TrackResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('duration_ms')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('explicit')
+                Tables\Columns\IconColumn::make('public')
                     ->boolean(),
-                Tables\Columns\IconColumn::make('is_interesting')
-                    ->boolean()
-                    ->label('Interesting'),
-                Tables\Columns\TextColumn::make('popularity')
+                Tables\Columns\IconColumn::make('collaborative')
+                    ->boolean(),
+                Tables\Columns\TextColumn::make('total_tracks')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('owner_name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('explicit'),
-                Tables\Filters\TernaryFilter::make('is_interesting'),
+                Tables\Filters\TernaryFilter::make('public'),
+                Tables\Filters\TernaryFilter::make('collaborative'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -87,10 +84,10 @@ class TrackResource extends Resource
                     ->icon('heroicon-o-arrow-down-tray')
                     ->action(function () {
                         // Queue population job
-                        \App\Jobs\PopulateTracksJob::dispatch();
+                        \App\Jobs\PopulatePlaylistsJob::dispatch();
                         
                         \Filament\Notifications\Notification::make()
-                            ->title('Tracks population queued')
+                            ->title('Playlists population queued')
                             ->success()
                             ->send();
                     }),
@@ -100,9 +97,9 @@ class TrackResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTracks::route('/'),
-            'create' => Pages\CreateTrack::route('/create'),
-            'edit' => Pages\EditTrack::route('/{record}/edit'),
+            'index' => Pages\ListPlaylists::route('/'),
+            'create' => Pages\CreatePlaylist::route('/create'),
+            'edit' => Pages\EditPlaylist::route('/{record}/edit'),
         ];
     }
 }

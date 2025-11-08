@@ -28,6 +28,8 @@ class ArtistResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Toggle::make('is_interesting')
+                    ->label('Mark as Interesting'),
                 Forms\Components\TextInput::make('popularity')
                     ->numeric(),
                 Forms\Components\TextInput::make('followers')
@@ -44,6 +46,9 @@ class ArtistResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\IconColumn::make('is_interesting')
+                    ->boolean()
+                    ->label('Interesting'),
                 Tables\Columns\TextColumn::make('popularity')
                     ->numeric()
                     ->sortable(),
@@ -56,7 +61,7 @@ class ArtistResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\TernaryFilter::make('is_interesting'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
