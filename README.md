@@ -208,3 +208,154 @@ The implementation follows these principles:
 2. **Single Responsibility**: Each client has a specific purpose
 3. **DRY**: Common HTTP logic is centralized in ExternalClient
 4. **Extensibility**: SpotifyTracksClient extends SpotifyClient for specialized functionality
+
+## Filament Admin Panel
+
+This application uses Filament 4 for its admin interface, providing a modern and intuitive UI for managing Spotify data.
+
+### Resources
+
+All Filament resources follow a clean architecture pattern with separated concerns:
+
+- **Form Schemas** (`app/Filament/Resources/{Resource}/Schemas/`) - Define form fields
+- **Table Schemas** (`app/Filament/Resources/{Resource}/Tables/`) - Define table columns, filters, and actions
+- **Resources** - Orchestrate schemas and define pages
+
+#### Available Resources:
+- **TrackResource** - Manage Spotify tracks
+- **ArtistResource** - Manage artists with popularity and follower metrics
+- **AlbumResource** - Manage albums with release dates and types
+- **PlaylistResource** - Manage playlists with collaboration settings
+
+### Dashboard
+
+The dashboard provides an overview with table widgets displaying:
+- Recent Tracks
+- Recent Artists
+- Recent Albums
+- Recent Playlists
+
+Each widget shows the latest 5 items with key metrics and allows quick access to detailed views.
+
+### Features in Filament Resources:
+
+- **Modals** - Create and edit forms open in modals for better UX
+- **Search** - Full-text search across entity names and IDs
+- **Filtering** - Filter by boolean flags (explicit, interesting, public, collaborative)
+- **Sorting** - Sort by any column (name, popularity, followers, etc.)
+- **Bulk Actions** - Delete multiple records at once
+- **Header Actions** - "Populate" button to trigger sync jobs from Spotify API
+
+## Testing
+
+The application has comprehensive test coverage following PHPUnit best practices.
+
+### Test Organization
+
+```
+tests/
+├── Unit/                   # Unit tests for services
+│   ├── Services/
+│   │   └── Database/      # Service layer tests
+│   └── Models/            # Model tests
+└── Feature/               # Feature tests
+    └── Filament/          # Filament resource tests
+```
+
+### Test Coverage
+
+**Unit Tests:**
+- Database Services (TrackService, ArtistService, AlbumService, PlaylistService)
+  - CRUD operations
+  - Relationship syncing
+  - Edge cases (optional fields, missing data, duplicates)
+  - Validation
+
+**Feature Tests:**
+- Filament Resources
+  - List pages with pagination
+  - Create/Edit forms with validation
+  - Modal behavior
+  - Filter functionality
+  - Search functionality
+  - Sorting
+  - Bulk actions
+  - Edge cases (max length, invalid URLs, boundary conditions)
+
+### Running Tests
+
+```bash
+# Run all tests
+./vendor/bin/phpunit
+
+# Run with testdox output
+./vendor/bin/phpunit --testdox
+
+# Run specific test suite
+./vendor/bin/phpunit --testsuite=Unit
+./vendor/bin/phpunit --testsuite=Feature
+
+# Run specific test file
+./vendor/bin/phpunit tests/Unit/Services/Database/TrackServiceTest.php
+```
+
+### Test Database
+
+Tests use SQLite in-memory database for speed and isolation:
+- Each test runs in a transaction
+- Database is refreshed between tests
+- No cleanup required
+
+### Fixtures
+
+JSON fixtures for Spotify API responses are stored in `tests/Fixtures/Spotify/`:
+- `track.json` - Single track response
+- `saved_tracks.json` - Saved tracks list response
+- `playlist_tracks.json` - Playlist tracks response
+
+## Development Guidelines
+
+### Code Quality Tools
+
+- **Laravel Pint** - Automatic code formatting following Laravel standards
+  ```bash
+  ./vendor/bin/pint
+  ```
+
+### Custom Instructions
+
+This project includes specialized instructions for AI coding assistants:
+
+- **.github/copilot-instructions.md** - GitHub Copilot configuration
+- **.github/agents/junie.md** - Junie (PHPStorm AI) configuration
+
+Both files contain:
+- Architectural principles and patterns
+- SOLID principles enforcement
+- Code style guidelines
+- Common patterns and examples
+- Anti-patterns to avoid
+
+### Key Development Principles
+
+1. **No JSON Columns** - Always use normalized tables and relationships
+2. **Early Returns** - Avoid nested conditionals
+3. **Maximum Abstraction** - Use interfaces and generic patterns
+4. **SOLID Principles** - Every class has single responsibility
+5. **Property Promotion** - Use PHP 8.1+ constructor property promotion
+6. **Comprehensive Tests** - Test functionality, not just existence
+7. **Lint Before Commit** - Always run `./vendor/bin/pint`
+
+## Contributing
+
+When contributing to this project:
+
+1. Follow the SOLID principles documented in `.github/copilot-instructions.md`
+2. Write comprehensive tests for new features
+3. Run `./vendor/bin/pint` before committing
+4. Ensure all tests pass
+5. Document any new patterns or abstractions
+
+## License
+
+[Add your license information here]
