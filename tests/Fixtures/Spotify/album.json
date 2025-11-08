@@ -1,0 +1,32 @@
+{
+  "id": "4OHNH3sDzIxnmUADXzv2kT",
+  "name": "Hot Fuss",
+  "album_type": "album",
+  "total_tracks": 11,
+  "release_date": "2004-06-07",
+  "release_date_precision": "day",
+  "type": "album",
+  "uri": "spotify:album:4OHNH3sDzIxnmUADXzv2kT",
+  "href": "https://api.spotify.com/v1/albums/4OHNH3sDzIxnmUADXzv2kT",
+  "external_urls": {
+    "spotify": "https://open.spotify.com/album/4OHNH3sDzIxnmUADXzv2kT"
+  },
+  "artists": [
+    {
+      "id": "0C0XlULifJtAgn6ZNCW2eu",
+      "name": "The Killers",
+      "uri": "spotify:artist:0C0XlULifJtAgn6ZNCW2eu",
+      "href": "https://api.spotify.com/v1/artists/0C0XlULifJtAgn6ZNCW2eu",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/0C0XlULifJtAgn6ZNCW2eu"
+      }
+    }
+  ],
+  "images": [
+    {
+      "url": "https://i.scdn.co/image/example_album",
+      "height": 640,
+      "width": 640
+    }
+  ]
+}

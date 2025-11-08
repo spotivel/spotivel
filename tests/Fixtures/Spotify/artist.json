@@ -1,0 +1,22 @@
+{
+  "id": "0C0XlULifJtAgn6ZNCW2eu",
+  "name": "The Killers",
+  "type": "artist",
+  "uri": "spotify:artist:0C0XlULifJtAgn6ZNCW2eu",
+  "href": "https://api.spotify.com/v1/artists/0C0XlULifJtAgn6ZNCW2eu",
+  "external_urls": {
+    "spotify": "https://open.spotify.com/artist/0C0XlULifJtAgn6ZNCW2eu"
+  },
+  "followers": {
+    "total": 8500000
+  },
+  "genres": ["alternative rock", "indie rock", "modern rock", "rock"],
+  "images": [
+    {
+      "url": "https://i.scdn.co/image/example",
+      "height": 640,
+      "width": 640
+    }
+  ],
+  "popularity": 82
+}

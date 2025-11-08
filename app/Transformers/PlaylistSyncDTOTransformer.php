@@ -55,4 +55,46 @@ class PlaylistSyncDTOTransformer
             metadata: []
         );
     }
+
+    /**
+     * Transform DTO back to Spotify API payload format.
+     * Used for sending data back to Spotify API (create/update playlist operations).
+     */
+    public function toSpotifyPayload(PlaylistSyncDTO $dto): array
+    {
+        $metadata = $dto->metadata();
+
+        return [
+            'name' => $metadata['name'] ?? '',
+            'description' => $metadata['description'] ?? '',
+            'public' => $metadata['public'] ?? true,
+            'collaborative' => $metadata['collaborative'] ?? false,
+        ];
+    }
+
+    /**
+     * Transform DTO tracks to Spotify API track URIs format.
+     * Used for adding tracks to a playlist.
+     */
+    public function tracksToSpotifyUris(PlaylistSyncDTO $dto): array
+    {
+        return $dto->tracks()
+            ->map(fn ($track) => $track['uri'] ?? 'spotify:track:'.$track['id'])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Transform DTO to complete Spotify playlist update payload.
+     * Includes both playlist metadata and track URIs.
+     */
+    public function toCompleteSpotifyPayload(PlaylistSyncDTO $dto): array
+    {
+        return [
+            'playlist' => $this->toSpotifyPayload($dto),
+            'tracks' => [
+                'uris' => $this->tracksToSpotifyUris($dto),
+            ],
+        ];
+    }
 }
