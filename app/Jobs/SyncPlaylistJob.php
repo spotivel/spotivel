@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\DTOs\PlaylistSyncDTO;
 use App\Models\Playlist;
-use App\Orchestrators\PlaylistSyncOrchestrator;
+use App\Orchestrators\SyncOrchestrator;
 use App\Services\SpotifyPlaylistsClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,7 +29,7 @@ class SyncPlaylistJob implements ShouldQueue
      */
     public function handle(
         SpotifyPlaylistsClient $playlistsClient,
-        PlaylistSyncOrchestrator $orchestrator
+        SyncOrchestrator $orchestrator
     ): void {
         $playlist = Playlist::findOrFail($this->playlistId);
 
@@ -43,12 +43,19 @@ class SyncPlaylistJob implements ShouldQueue
             $dto = new PlaylistSyncDTO(
                 playlistId: $playlist->id,
                 spotifyId: $playlist->spotify_id,
-                tracks: $tracks,
+                tracks: collect($tracks),
                 metadata: [
                     'name' => $playlist->name,
                     'total_tracks' => count($tracks),
                 ]
             );
+
+            // Configure handlers for playlist sync pipeline
+            $orchestrator->setHandlers([
+                \App\Pipelines\RemoveDuplicatePlaylistTracksHandler::class,
+                \App\Pipelines\NormalizePlaylistTrackDataHandler::class,
+                \App\Pipelines\ValidatePlaylistTracksHandler::class,
+            ]);
 
             // Dispatch to orchestrator for processing and saving
             $orchestrator->sync($dto, $playlist);

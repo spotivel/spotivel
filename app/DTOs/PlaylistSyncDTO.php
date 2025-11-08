@@ -2,9 +2,10 @@
 
 namespace App\DTOs;
 
+use App\Contracts\SyncDTOInterface;
 use Illuminate\Support\Collection;
 
-class PlaylistSyncDTO
+class PlaylistSyncDTO implements SyncDTOInterface
 {
     public function __construct(
         private int $playlistId,
@@ -12,6 +13,11 @@ class PlaylistSyncDTO
         private Collection $tracks,
         private array $metadata = [],
     ) {}
+
+    public function entityId(): int
+    {
+        return $this->playlistId;
+    }
 
     public function playlistId(): int
     {
@@ -37,6 +43,11 @@ class PlaylistSyncDTO
         return $this;
     }
 
+    public function data(): Collection
+    {
+        return $this->tracks;
+    }
+
     public function tracks(): Collection
     {
         return $this->tracks;
@@ -59,6 +70,14 @@ class PlaylistSyncDTO
         $this->metadata = $metadata;
 
         return $this;
+    }
+
+    public function withData(Collection $data): self
+    {
+        $clone = clone $this;
+        $clone->tracks = $data;
+
+        return $clone;
     }
 
     public function withTracks(Collection $tracks): self
