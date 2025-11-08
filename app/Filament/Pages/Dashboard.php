@@ -21,6 +21,11 @@ class Dashboard extends Page implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    // Icon constants for type safety
+    private const ICON_SYNC = 'heroicon-o-arrow-path';
+    private const ICON_EDIT = 'heroicon-o-pencil-square';
+    private const ICON_MUSIC = 'heroicon-o-musical-note';
+
     protected static ?string $navigationIcon = 'heroicon-o-home';
 
     protected static string $view = 'filament.pages.dashboard';
@@ -78,7 +83,7 @@ class Dashboard extends Page implements HasForms, HasTable
             ->actions([
                 Tables\Actions\Action::make('populate')
                     ->label('Populate')
-                    ->icon('heroicon-o-arrow-path')
+                    ->icon(self::ICON_SYNC)
                     ->color('primary')
                     ->extraAttributes([
                         'class' => 'bg-nord-600 text-nord-300 hover:bg-nord-500',
@@ -98,11 +103,11 @@ class Dashboard extends Page implements HasForms, HasTable
                     }),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make()
-                        ->icon('heroicon-o-pencil-square')
+                        ->icon(self::ICON_EDIT)
                         ->url(fn (Playlist $record): string => route('filament.admin.resources.playlists.edit', ['record' => $record])),
                     Tables\Actions\Action::make('open_spotify')
                         ->label('Open in Spotify')
-                        ->icon('heroicon-o-musical-note')
+                        ->icon(self::ICON_MUSIC)
                         ->url(fn (Playlist $record): string => $record->external_url)
                         ->openUrlInNewTab(),
                 ]),
