@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('href')->nullable();
             $table->string('external_url')->nullable();
             $table->boolean('is_local')->default(false);
-            $table->json('available_markets')->nullable();
             $table->timestamps();
         });
     }

@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('spotify_id')->unique();
             $table->string('name');
-            $table->json('genres')->nullable();
             $table->integer('popularity')->nullable();
             $table->integer('followers')->nullable();
-            $table->json('images')->nullable();
             $table->string('uri')->nullable();
             $table->string('href')->nullable();
             $table->string('external_url')->nullable();

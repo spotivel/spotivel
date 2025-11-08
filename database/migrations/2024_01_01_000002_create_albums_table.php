@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('release_date')->nullable();
             $table->string('release_date_precision')->nullable();
             $table->integer('total_tracks')->nullable();
-            $table->json('available_markets')->nullable();
-            $table->json('images')->nullable();
             $table->string('uri')->nullable();
             $table->string('href')->nullable();
             $table->string('external_url')->nullable();

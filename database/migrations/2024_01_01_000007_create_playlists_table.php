@@ -19,7 +19,6 @@ return new class extends Migration
             $table->boolean('public')->default(true);
             $table->boolean('collaborative')->default(false);
             $table->integer('total_tracks')->default(0);
-            $table->json('images')->nullable();
             $table->string('uri')->nullable();
             $table->string('href')->nullable();
             $table->string('external_url')->nullable();
