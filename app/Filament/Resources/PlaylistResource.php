@@ -85,7 +85,7 @@ class PlaylistResource extends Resource
                     ->action(function () {
                         // Queue population job
                         \App\Jobs\PopulatePlaylistsJob::dispatch();
-                        
+
                         \Filament\Notifications\Notification::make()
                             ->title('Playlists population queued')
                             ->success()

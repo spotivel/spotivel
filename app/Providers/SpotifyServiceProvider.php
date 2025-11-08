@@ -17,14 +17,14 @@ class SpotifyServiceProvider extends ServiceProvider
     {
         // Register ExternalClient with decorators
         $this->app->singleton(ExternalClient::class, function ($app) {
-            $client = new ExternalClient();
-            
+            $client = new ExternalClient;
+
             // Decorate with exception handling
             $client = new HttpClientExceptionDecorator($client);
-            
+
             // Decorate with request logging
             $client = new RequestLoggerDecorator($client);
-            
+
             return $client;
         });
 

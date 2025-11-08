@@ -79,7 +79,7 @@ class ArtistResource extends Resource
                     ->action(function () {
                         // Queue population job
                         \App\Jobs\PopulateArtistsJob::dispatch();
-                        
+
                         \Filament\Notifications\Notification::make()
                             ->title('Artists population queued')
                             ->success()

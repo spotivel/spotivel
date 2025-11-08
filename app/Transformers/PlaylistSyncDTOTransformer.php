@@ -4,7 +4,6 @@ namespace App\Transformers;
 
 use App\DTOs\PlaylistSyncDTO;
 use App\Models\Playlist;
-use Illuminate\Support\Collection;
 
 class PlaylistSyncDTOTransformer
 {
@@ -14,7 +13,7 @@ class PlaylistSyncDTOTransformer
     public function transform(Playlist $playlist, array $tracksData): PlaylistSyncDTO
     {
         $tracks = collect($tracksData);
-        
+
         return new PlaylistSyncDTO(
             playlistId: $playlist->id,
             spotifyId: $playlist->spotify_id,
@@ -48,7 +47,7 @@ class PlaylistSyncDTOTransformer
     public function transformFromSpotifyResponse(int $playlistId, string $spotifyId, array $spotifyTracks): PlaylistSyncDTO
     {
         $tracks = collect($spotifyTracks);
-        
+
         return new PlaylistSyncDTO(
             playlistId: $playlistId,
             spotifyId: $spotifyId,

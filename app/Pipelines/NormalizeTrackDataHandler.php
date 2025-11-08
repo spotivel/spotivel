@@ -11,7 +11,6 @@ class NormalizeTrackDataHandler
      * Handle the pipeline to normalize track data.
      *
      * @param  Collection  $tracks
-     * @param  Closure  $next
      * @return mixed
      */
     public function handle($tracks, Closure $next)

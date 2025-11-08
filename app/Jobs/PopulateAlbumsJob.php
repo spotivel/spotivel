@@ -31,7 +31,7 @@ class PopulateAlbumsJob implements ShouldQueue
             if (isset($response['items'])) {
                 foreach ($response['items'] as $item) {
                     $albumData = $item['album'];
-                    
+
                     Album::updateOrCreate(
                         ['spotify_id' => $albumData['id']],
                         [
@@ -40,8 +40,6 @@ class PopulateAlbumsJob implements ShouldQueue
                             'release_date' => $albumData['release_date'] ?? null,
                             'release_date_precision' => $albumData['release_date_precision'] ?? null,
                             'total_tracks' => $albumData['total_tracks'] ?? null,
-                            'available_markets' => $albumData['available_markets'] ?? null,
-                            'images' => $albumData['images'] ?? null,
                             'uri' => $albumData['uri'],
                             'href' => $albumData['href'],
                             'external_url' => $albumData['external_urls']['spotify'] ?? null,
@@ -52,7 +50,7 @@ class PopulateAlbumsJob implements ShouldQueue
 
             Log::info('Album population completed successfully');
         } catch (\Exception $e) {
-            Log::error('Album population failed: ' . $e->getMessage());
+            Log::error('Album population failed: '.$e->getMessage());
             throw $e;
         }
     }

@@ -11,8 +11,7 @@ class PlaylistSyncDTO
         private string $spotifyId,
         private Collection $tracks,
         private array $metadata = [],
-    ) {
-    }
+    ) {}
 
     public function playlistId(): int
     {
@@ -22,6 +21,7 @@ class PlaylistSyncDTO
     public function setPlaylistId(int $playlistId): self
     {
         $this->playlistId = $playlistId;
+
         return $this;
     }
 
@@ -33,6 +33,7 @@ class PlaylistSyncDTO
     public function setSpotifyId(string $spotifyId): self
     {
         $this->spotifyId = $spotifyId;
+
         return $this;
     }
 
@@ -44,6 +45,7 @@ class PlaylistSyncDTO
     public function setTracks(Collection $tracks): self
     {
         $this->tracks = $tracks;
+
         return $this;
     }
 
@@ -55,6 +57,7 @@ class PlaylistSyncDTO
     public function setMetadata(array $metadata): self
     {
         $this->metadata = $metadata;
+
         return $this;
     }
 
@@ -62,6 +65,7 @@ class PlaylistSyncDTO
     {
         $clone = clone $this;
         $clone->tracks = $tracks;
+
         return $clone;
     }
 

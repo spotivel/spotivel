@@ -77,7 +77,7 @@ class AlbumResource extends Resource
                     ->action(function () {
                         // Queue population job
                         \App\Jobs\PopulateAlbumsJob::dispatch();
-                        
+
                         \Filament\Notifications\Notification::make()
                             ->title('Albums population queued')
                             ->success()

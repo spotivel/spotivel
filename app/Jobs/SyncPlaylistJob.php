@@ -23,8 +23,7 @@ class SyncPlaylistJob implements ShouldQueue
      */
     public function __construct(
         public int $playlistId
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the job.
@@ -32,7 +31,7 @@ class SyncPlaylistJob implements ShouldQueue
     public function handle(SpotifyClient $spotifyClient): void
     {
         $playlist = Playlist::findOrFail($this->playlistId);
-        
+
         Log::info("Syncing playlist: {$playlist->name} ({$playlist->spotify_id})");
 
         try {
@@ -65,7 +64,7 @@ class SyncPlaylistJob implements ShouldQueue
 
             Log::info("Playlist sync completed: {$playlist->name}");
         } catch (\Exception $e) {
-            Log::error("Playlist sync failed for {$playlist->name}: " . $e->getMessage());
+            Log::error("Playlist sync failed for {$playlist->name}: ".$e->getMessage());
             throw $e;
         }
     }
@@ -89,7 +88,7 @@ class SyncPlaylistJob implements ShouldQueue
 
             if (isset($response['items'])) {
                 foreach ($response['items'] as $item) {
-                    if (isset($item['track']) && !empty($item['track']['id'])) {
+                    if (isset($item['track']) && ! empty($item['track']['id'])) {
                         $tracks[] = $item['track'];
                     }
                 }
@@ -97,7 +96,7 @@ class SyncPlaylistJob implements ShouldQueue
 
             $offset += $limit;
 
-            if (!isset($response['next']) || $response['next'] === null) {
+            if (! isset($response['next']) || $response['next'] === null) {
                 $hasMore = false;
             }
         }

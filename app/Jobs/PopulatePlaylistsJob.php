@@ -34,7 +34,7 @@ class PopulatePlaylistsJob implements ShouldQueue
                     'offset' => $offset,
                 ])->json();
 
-                if (!isset($response['items']) || empty($response['items'])) {
+                if (! isset($response['items']) || empty($response['items'])) {
                     $hasMore = false;
                     break;
                 }
@@ -48,7 +48,6 @@ class PopulatePlaylistsJob implements ShouldQueue
                             'public' => $playlistData['public'] ?? true,
                             'collaborative' => $playlistData['collaborative'] ?? false,
                             'total_tracks' => $playlistData['tracks']['total'] ?? 0,
-                            'images' => $playlistData['images'] ?? null,
                             'uri' => $playlistData['uri'],
                             'href' => $playlistData['href'],
                             'external_url' => $playlistData['external_urls']['spotify'] ?? null,
@@ -63,14 +62,14 @@ class PopulatePlaylistsJob implements ShouldQueue
 
                 $offset += $limit;
 
-                if (!isset($response['next']) || $response['next'] === null) {
+                if (! isset($response['next']) || $response['next'] === null) {
                     $hasMore = false;
                 }
             }
 
             Log::info('Playlist population completed successfully');
         } catch (\Exception $e) {
-            Log::error('Playlist population failed: ' . $e->getMessage());
+            Log::error('Playlist population failed: '.$e->getMessage());
             throw $e;
         }
     }

@@ -11,18 +11,16 @@ class ValidatePlaylistTracksHandler
      * Handle the pipeline to validate tracks in playlist DTO.
      * Uses Collection filter() for functional filtering.
      *
-     * @param  PlaylistSyncDTO  $dto
-     * @param  Closure  $next
      * @return mixed
      */
     public function handle(PlaylistSyncDTO $dto, Closure $next)
     {
         $tracks = $dto->tracks();
-        
+
         // Filter out invalid tracks using Collection
         $validTracks = $tracks->filter(function ($track) {
-            return !empty($track['id']) 
-                && !empty($track['name']) 
+            return ! empty($track['id'])
+                && ! empty($track['name'])
                 && isset($track['duration_ms'])
                 && $track['duration_ms'] > 0;
         })->values(); // Re-index the collection

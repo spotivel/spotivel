@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Http;
 class ExternalClient implements HttpClientInterface
 {
     protected string $baseUrl;
+
     protected array $headers = [];
+
     protected int $timeout = 30;
 
     /**
@@ -27,6 +29,7 @@ class ExternalClient implements HttpClientInterface
     public function setBaseUrl(string $url): self
     {
         $this->baseUrl = $url;
+
         return $this;
     }
 
@@ -36,6 +39,7 @@ class ExternalClient implements HttpClientInterface
     public function setHeaders(array $headers): self
     {
         $this->headers = array_merge($this->headers, $headers);
+
         return $this;
     }
 
@@ -45,6 +49,7 @@ class ExternalClient implements HttpClientInterface
     public function setTimeout(int $timeout): self
     {
         $this->timeout = $timeout;
+
         return $this;
     }
 

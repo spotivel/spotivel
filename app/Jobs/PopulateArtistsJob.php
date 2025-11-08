@@ -35,10 +35,8 @@ class PopulateArtistsJob implements ShouldQueue
                         ['spotify_id' => $artistData['id']],
                         [
                             'name' => $artistData['name'],
-                            'genres' => $artistData['genres'] ?? null,
                             'popularity' => $artistData['popularity'] ?? null,
                             'followers' => $artistData['followers']['total'] ?? null,
-                            'images' => $artistData['images'] ?? null,
                             'uri' => $artistData['uri'],
                             'href' => $artistData['href'],
                             'external_url' => $artistData['external_urls']['spotify'] ?? null,
@@ -49,7 +47,7 @@ class PopulateArtistsJob implements ShouldQueue
 
             Log::info('Artist population completed successfully');
         } catch (\Exception $e) {
-            Log::error('Artist population failed: ' . $e->getMessage());
+            Log::error('Artist population failed: '.$e->getMessage());
             throw $e;
         }
     }

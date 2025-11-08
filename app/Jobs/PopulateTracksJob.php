@@ -31,13 +31,13 @@ class PopulateTracksJob implements ShouldQueue
 
             while ($hasMore) {
                 $response = $spotifyClient->getSavedTracks($limit, $offset);
-                
-                if (!isset($response['items']) || empty($response['items'])) {
+
+                if (! isset($response['items']) || empty($response['items'])) {
                     $hasMore = false;
                     break;
                 }
 
-                $tracks = collect($response['items'])->map(fn($item) => $item['track']);
+                $tracks = collect($response['items'])->map(fn ($item) => $item['track']);
 
                 // Run through deduplication pipeline
                 $deduplicatedTracks = app(Pipeline::class)
@@ -64,7 +64,6 @@ class PopulateTracksJob implements ShouldQueue
                             'href' => $trackData['href'],
                             'external_url' => $trackData['external_urls']['spotify'] ?? null,
                             'is_local' => $trackData['is_local'] ?? false,
-                            'available_markets' => $trackData['available_markets'] ?? null,
                         ]
                     );
 
@@ -88,15 +87,15 @@ class PopulateTracksJob implements ShouldQueue
                 }
 
                 $offset += $limit;
-                
-                if (!isset($response['next']) || $response['next'] === null) {
+
+                if (! isset($response['next']) || $response['next'] === null) {
                     $hasMore = false;
                 }
             }
 
             Log::info('Track population completed successfully');
         } catch (\Exception $e) {
-            Log::error('Track population failed: ' . $e->getMessage());
+            Log::error('Track population failed: '.$e->getMessage());
             throw $e;
         }
     }
