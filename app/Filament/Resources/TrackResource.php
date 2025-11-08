@@ -3,11 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TrackResource\Pages;
+use App\Filament\Resources\TrackResource\Schemas\TrackFormSchema;
+use App\Filament\Resources\TrackResource\Tables\TrackTableSchema;
 use App\Models\Track;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 
 class TrackResource extends Resource
@@ -20,81 +20,17 @@ class TrackResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('spotify_id')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('duration_ms')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\Toggle::make('explicit')
-                    ->required(),
-                Forms\Components\Toggle::make('is_interesting')
-                    ->label('Mark as Interesting'),
-                Forms\Components\TextInput::make('popularity')
-                    ->numeric(),
-                Forms\Components\TextInput::make('preview_url')
-                    ->url()
-                    ->maxLength(255),
-            ]);
+        return $form->schema(TrackFormSchema::make());
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('spotify_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('duration_ms')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('explicit')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('is_interesting')
-                    ->boolean()
-                    ->label('Interesting'),
-                Tables\Columns\TextColumn::make('popularity')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                Tables\Filters\TernaryFilter::make('explicit'),
-                Tables\Filters\TernaryFilter::make('is_interesting'),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->headerActions([
-                Tables\Actions\Action::make('populate')
-                    ->label('Populate')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->action(function () {
-                        // Queue population job
-                        \App\Jobs\PopulateTracksJob::dispatch();
-
-                        \Filament\Notifications\Notification::make()
-                            ->title('Tracks population queued')
-                            ->success()
-                            ->send();
-                    }),
-            ]);
+            ->columns(TrackTableSchema::columns())
+            ->filters(TrackTableSchema::filters())
+            ->actions(TrackTableSchema::actions())
+            ->bulkActions(TrackTableSchema::bulkActions())
+            ->headerActions(TrackTableSchema::headerActions());
     }
 
     public static function getPages(): array

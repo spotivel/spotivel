@@ -64,7 +64,6 @@ class PlaylistSyncDTOTransformer
     {
         $metadata = $dto->metadata();
 
-        return [
         $payload = [
             'name' => $metadata['name'] ?? '',
             'description' => $metadata['description'] ?? '',

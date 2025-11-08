@@ -3,11 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PlaylistResource\Pages;
+use App\Filament\Resources\PlaylistResource\Schemas\PlaylistFormSchema;
+use App\Filament\Resources\PlaylistResource\Tables\PlaylistTableSchema;
 use App\Models\Playlist;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 
 class PlaylistResource extends Resource
@@ -20,78 +20,17 @@ class PlaylistResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('spotify_id')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\Toggle::make('public')
-                    ->required(),
-                Forms\Components\Toggle::make('collaborative')
-                    ->required(),
-                Forms\Components\TextInput::make('total_tracks')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-            ]);
+        return $form->schema(PlaylistFormSchema::make());
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('spotify_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('public')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('collaborative')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('total_tracks')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('owner_name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                Tables\Filters\TernaryFilter::make('public'),
-                Tables\Filters\TernaryFilter::make('collaborative'),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->headerActions([
-                Tables\Actions\Action::make('populate')
-                    ->label('Populate')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->action(function () {
-                        // Queue population job
-                        \App\Jobs\PopulatePlaylistsJob::dispatch();
-
-                        \Filament\Notifications\Notification::make()
-                            ->title('Playlists population queued')
-                            ->success()
-                            ->send();
-                    }),
-            ]);
+            ->columns(PlaylistTableSchema::columns())
+            ->filters(PlaylistTableSchema::filters())
+            ->actions(PlaylistTableSchema::actions())
+            ->bulkActions(PlaylistTableSchema::bulkActions())
+            ->headerActions(PlaylistTableSchema::headerActions());
     }
 
     public static function getPages(): array
