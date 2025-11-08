@@ -80,6 +80,9 @@ class Dashboard extends Page implements HasForms, HasTable
                     ->label('Populate')
                     ->icon('heroicon-o-arrow-path')
                     ->color('primary')
+                    ->extraAttributes([
+                        'class' => 'bg-nord-600 text-nord-300 hover:bg-nord-500',
+                    ])
                     ->requiresConfirmation()
                     ->modalHeading('Sync Playlist')
                     ->modalDescription(fn (Playlist $record): string => "This will sync the playlist '{$record->name}' with Spotify, including finding live versions and updating tracks. This may take a few minutes.")
@@ -95,6 +98,7 @@ class Dashboard extends Page implements HasForms, HasTable
                     }),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make()
+                        ->icon('heroicon-o-pencil-square')
                         ->url(fn (Playlist $record): string => route('filament.admin.resources.playlists.edit', ['record' => $record])),
                     Tables\Actions\Action::make('open_spotify')
                         ->label('Open in Spotify')
