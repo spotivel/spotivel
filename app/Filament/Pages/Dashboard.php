@@ -4,12 +4,23 @@ namespace App\Filament\Pages;
 
 use App\Filament\Widgets\AlbumsTableWidget;
 use App\Filament\Widgets\ArtistsTableWidget;
-use App\Filament\Widgets\PlaylistsTableWidget;
 use App\Filament\Widgets\TracksTableWidget;
+use App\Jobs\SyncPlaylistJob;
+use App\Models\Playlist;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Tables;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 
-class Dashboard extends Page
+class Dashboard extends Page implements HasForms, HasTable
 {
+    use InteractsWithForms;
+    use InteractsWithTable;
+
     protected static ?string $navigationIcon = 'heroicon-o-home';
 
     protected static string $view = 'filament.pages.dashboard';
@@ -32,15 +43,69 @@ class Dashboard extends Page
             TracksTableWidget::class,
             ArtistsTableWidget::class,
             AlbumsTableWidget::class,
-            PlaylistsTableWidget::class,
         ];
     }
     
-    protected function playlistsTable(): string
+    public function table(Table $table): Table
     {
-        return view('filament::widgets.widget', [
-            'widget' => $this->getCachedWidget(PlaylistsTableWidget::class),
-        ])->render();
+        return $table
+            ->query(Playlist::query()->latest()->limit(10))
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold')
+                    ->description(fn (Playlist $record): string => $record->description ?? ''),
+                Tables\Columns\IconColumn::make('public')
+                    ->boolean()
+                    ->label('Public'),
+                Tables\Columns\IconColumn::make('collaborative')
+                    ->boolean()
+                    ->label('Collab'),
+                Tables\Columns\TextColumn::make('total_tracks')
+                    ->numeric()
+                    ->sortable()
+                    ->label('Tracks'),
+                Tables\Columns\TextColumn::make('owner_name')
+                    ->searchable()
+                    ->label('Owner'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->since()
+                    ->label('Added'),
+            ])
+            ->actions([
+                Tables\Actions\Action::make('populate')
+                    ->label('Populate')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Sync Playlist')
+                    ->modalDescription(fn (Playlist $record): string => "This will sync the playlist '{$record->name}' with Spotify, including finding live versions and updating tracks. This may take a few minutes.")
+                    ->modalSubmitActionLabel('Start Sync')
+                    ->action(function (Playlist $record) {
+                        SyncPlaylistJob::dispatch($record->id);
+                        
+                        Notification::make()
+                            ->title('Playlist sync started')
+                            ->body("'{$record->name}' is being synced in the background.")
+                            ->success()
+                            ->send();
+                    }),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->url(fn (Playlist $record): string => route('filament.admin.resources.playlists.edit', ['record' => $record])),
+                    Tables\Actions\Action::make('open_spotify')
+                        ->label('Open in Spotify')
+                        ->icon('heroicon-o-musical-note')
+                        ->url(fn (Playlist $record): string => $record->external_url)
+                        ->openUrlInNewTab(),
+                ]),
+            ])
+            ->heading('Recent Playlists')
+            ->description('Your most recently synced playlists from Spotify')
+            ->striped();
     }
     
     protected function tracksTable(): string

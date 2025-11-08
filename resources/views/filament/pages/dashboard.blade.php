@@ -12,7 +12,7 @@
                     <li><strong>Playlists</strong> - Organize and sync your playlists</li>
                 </ul>
                 <p class="mt-4 text-xs">
-                    Click the "Populate" button in each section to sync data from Spotify.
+                    Click the "Populate" button in each playlist row to sync individual playlists from Spotify.
                 </p>
             </div>
         </div>
@@ -23,8 +23,8 @@
         {{-- Main content area (8 columns wide / 2fr) --}}
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
-                {{-- Playlists table with Populate button --}}
-                {{ $this->playlistsTable() }}
+                {{-- Playlists table (actual Filament table, not widget) --}}
+                {{ $this->table }}
             </div>
             
             <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
@@ -46,4 +46,6 @@
             </div>
         </div>
     </div>
+    
+    <x-filament-actions::modals />
 </x-filament-panels::page>
