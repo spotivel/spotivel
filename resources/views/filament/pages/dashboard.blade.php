@@ -1,9 +1,9 @@
 <x-filament-panels::page>
     <div class="grid grid-cols-1 gap-6 mb-6">
-        <div class="text-gray-600 dark:text-gray-400">
+        <div class="text-nord-200 dark:text-nord-200">
             <p class="text-xl font-semibold mb-4">Welcome to Spotivel - Spotify Track Sync Dashboard</p>
             
-            <div class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            <div class="text-sm text-nord-300 dark:text-nord-300 mb-6">
                 <p>Use the navigation menu to manage:</p>
                 <ul class="list-disc list-inside mt-2 space-y-1">
                     <li><strong>Tracks</strong> - View and sync your Spotify tracks</li>
@@ -22,43 +22,27 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- Main content area (8 columns wide / 2fr) --}}
         <div class="lg:col-span-2 space-y-6">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
                 {{-- Playlists table with Populate button --}}
-                <x-filament-widgets::widgets
-                    :widgets="[
-                        \App\Filament\Widgets\PlaylistsTableWidget::class,
-                    ]"
-                />
+                @livewire($this->playlistsTable())
             </div>
             
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
                 {{-- Tracks table --}}
-                <x-filament-widgets::widgets
-                    :widgets="[
-                        \App\Filament\Widgets\TracksTableWidget::class,
-                    ]"
-                />
+                @livewire($this->tracksTable())
             </div>
         </div>
 
         {{-- Sidebar content area (4 columns wide / 1fr) --}}
         <div class="lg:col-span-1 space-y-6">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
                 {{-- Artists table --}}
-                <x-filament-widgets::widgets
-                    :widgets="[
-                        \App\Filament\Widgets\ArtistsTableWidget::class,
-                    ]"
-                />
+                @livewire($this->artistsTable())
             </div>
             
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
                 {{-- Albums table --}}
-                <x-filament-widgets::widgets
-                    :widgets="[
-                        \App\Filament\Widgets\AlbumsTableWidget::class,
-                    ]"
-                />
+                @livewire($this->albumsTable())
             </div>
         </div>
     </div>

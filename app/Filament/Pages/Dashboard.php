@@ -35,4 +35,24 @@ class Dashboard extends Page
             PlaylistsTableWidget::class,
         ];
     }
+    
+    public function playlistsTable()
+    {
+        return PlaylistsTableWidget::class;
+    }
+    
+    public function tracksTable()
+    {
+        return TracksTableWidget::class;
+    }
+    
+    public function artistsTable()
+    {
+        return ArtistsTableWidget::class;
+    }
+    
+    public function albumsTable()
+    {
+        return AlbumsTableWidget::class;
+    }
 }
