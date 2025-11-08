@@ -15,9 +15,19 @@ class SpotifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Register ExternalClient with decorators
+        // Register ExternalClient configured for Spotify with decorators
         $this->app->singleton(ExternalClient::class, function ($app) {
-            $client = new ExternalClient;
+            $accessToken = config('services.spotify.access_token', '');
+
+            $client = new ExternalClient(
+                baseUrl: 'https://api.spotify.com/v1',
+                headers: [
+                    'Authorization' => 'Bearer '.$accessToken,
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                timeout: 30
+            );
 
             // Decorate with exception handling
             $client = new HttpClientExceptionDecorator($client);
@@ -28,10 +38,10 @@ class SpotifyServiceProvider extends ServiceProvider
             return $client;
         });
 
-        // Register SpotifyClient
+        // Register SpotifyClient with configured ExternalClient
         $this->app->singleton(SpotifyClient::class, function ($app) {
             return new SpotifyClient(
-                config('services.spotify.access_token')
+                $app->make(ExternalClient::class)
             );
         });
     }
