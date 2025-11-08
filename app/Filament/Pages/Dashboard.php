@@ -36,23 +36,31 @@ class Dashboard extends Page
         ];
     }
     
-    public function playlistsTable()
+    protected function playlistsTable(): string
     {
-        return PlaylistsTableWidget::class;
+        return view('filament::widgets.widget', [
+            'widget' => $this->getCachedWidget(PlaylistsTableWidget::class),
+        ])->render();
     }
     
-    public function tracksTable()
+    protected function tracksTable(): string
     {
-        return TracksTableWidget::class;
+        return view('filament::widgets.widget', [
+            'widget' => $this->getCachedWidget(TracksTableWidget::class),
+        ])->render();
     }
     
-    public function artistsTable()
+    protected function artistsTable(): string
     {
-        return ArtistsTableWidget::class;
+        return view('filament::widgets.widget', [
+            'widget' => $this->getCachedWidget(ArtistsTableWidget::class),
+        ])->render();
     }
     
-    public function albumsTable()
+    protected function albumsTable(): string
     {
-        return AlbumsTableWidget::class;
+        return view('filament::widgets.widget', [
+            'widget' => $this->getCachedWidget(AlbumsTableWidget::class),
+        ])->render();
     }
 }

@@ -24,12 +24,12 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
                 {{-- Playlists table with Populate button --}}
-                @livewire($this->playlistsTable())
+                {{ $this->playlistsTable() }}
             </div>
             
             <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
                 {{-- Tracks table --}}
-                @livewire($this->tracksTable())
+                {{ $this->tracksTable() }}
             </div>
         </div>
 
@@ -37,12 +37,12 @@
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
                 {{-- Artists table --}}
-                @livewire($this->artistsTable())
+                {{ $this->artistsTable() }}
             </div>
             
             <div class="bg-nord-700 dark:bg-nord-700 rounded-lg shadow-sm p-6 border border-nord-600 dark:border-nord-600">
                 {{-- Albums table --}}
-                @livewire($this->albumsTable())
+                {{ $this->albumsTable() }}
             </div>
         </div>
     </div>
