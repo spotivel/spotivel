@@ -14,6 +14,7 @@ yarn-error.log
 Thumbs.db
 /public/hot
 /public/storage
+/public/build
 /storage/*.key
 /composer.lock
 /package-lock.json

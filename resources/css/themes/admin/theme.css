@@ -1,0 +1,637 @@
+@import "tailwindcss";
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+/* Configure content sources for TailwindCSS v4 */
+@source "../../app/Filament/**/*.php";
+@source "../../resources/views/filament/**/*.blade.php";
+@source "../../../vendor/filament/**/*.blade.php";
+
+/* Nord Theme - Dark Mode First Approach */
+@theme {
+    /* Nord Color Palette with 10 Variations (50-950) */
+    
+    /* Polar Night - Dark shades with variations */
+    --color-nord-50: #ECEFF4;       /* #ECEFF4 - Lightest Snow Storm 3 */
+    --color-nord-100: #E5E9F0;      /* #E5E9F0 - Snow Storm 2 */
+    --color-nord-200: #D8DEE9;      /* #D8DEE9 - Snow Storm 1 */
+    --color-nord-300: #C2CAD0;      /* #C2CAD0 - Blend */
+    --color-nord-400: #A9B2BA;      /* #A9B2BA - Blend */
+    --color-nord-500: #4C566A;      /* #4C566A - Polar Night 4 */
+    --color-nord-600: #434C5E;      /* #434C5E - Polar Night 3 */
+    --color-nord-700: #3B4252;      /* #3B4252 - Polar Night 2 */
+    --color-nord-800: #2E3440;      /* #2E3440 - Polar Night 1 Darkest */
+    --color-nord-900: #242933;      /* #242933 - Extra dark blend */
+    --color-nord-950: #1A1F26;      /* #1A1F26 - Extra extra dark */
+    
+    /* Frost - Blue/Cyan with variations */
+    --color-frost-50: #EBF5F5;      /* #EBF5F5 */
+    --color-frost-100: #D4EBEC;     /* #D4EBEC */
+    --color-frost-200: #B8DCE0;     /* #B8DCE0 */
+    --color-frost-300: #9DCFD4;     /* #9DCFD4 */
+    --color-frost-400: #8FBCBB;     /* #8FBCBB - Nord 7 */
+    --color-frost-500: #88C0D0;     /* #88C0D0 - Nord 8 */
+    --color-frost-600: #81A1C1;     /* #81A1C1 - Nord 9 */
+    --color-frost-700: #5E81AC;     /* #5E81AC - Nord 10 */
+    --color-frost-800: #4A6A93;     /* #4A6A93 */
+    --color-frost-900: #3A5578;     /* #3A5578 */
+    --color-frost-950: #2A3F5A;     /* #2A3F5A */
+    
+    /* Aurora Red - with variations */
+    --color-red-50: #FDF4F5;        /* #FDF4F5 */
+    --color-red-100: #FAE8EA;       /* #FAE8EA */
+    --color-red-200: #F4D1D5;       /* #F4D1D5 */
+    --color-red-300: #EEBAC0;       /* #EEBAC0 */
+    --color-red-400: #D78A92;       /* #D78A92 */
+    --color-red-500: #BF616A;       /* #BF616A - Nord 11 */
+    --color-red-600: #B24C56;       /* #B24C56 */
+    --color-red-700: #9F3D47;       /* #9F3D47 */
+    --color-red-800: #7D3038;       /* #7D3038 */
+    --color-red-900: #5C242A;       /* #5C242A */
+    --color-red-950: #3A171B;       /* #3A171B */
+    
+    /* Aurora Orange - with variations */
+    --color-orange-50: #FDF7F4;     /* #FDF7F4 */
+    --color-orange-100: #FAEDE6;    /* #FAEDE6 */
+    --color-orange-200: #F5DBCC;    /* #F5DBCC */
+    --color-orange-300: #EFC8B3;    /* #EFC8B3 */
+    --color-orange-400: #E0A591;    /* #E0A591 */
+    --color-orange-500: #D08770;    /* #D08770 - Nord 12 */
+    --color-orange-600: #C0735A;    /* #C0735A */
+    --color-orange-700: #A65F49;    /* #A65F49 */
+    --color-orange-800: #834B39;    /* #834B39 */
+    --color-orange-900: #613829;    /* #613829 */
+    --color-orange-950: #3E251A;    /* #3E251A */
+    
+    /* Aurora Yellow - with variations */
+    --color-yellow-50: #FEFDF7;     /* #FEFDF7 */
+    --color-yellow-100: #FCF9EB;    /* #FCF9EB */
+    --color-yellow-200: #F9F3D6;    /* #F9F3D6 */
+    --color-yellow-300: #F5EDC2;    /* #F5EDC2 */
+    --color-yellow-400: #F0DCA6;    /* #F0DCA6 */
+    --color-yellow-500: #EBCB8B;    /* #EBCB8B - Nord 13 */
+    --color-yellow-600: #D9B56C;    /* #D9B56C */
+    --color-yellow-700: #C09E4F;    /* #C09E4F */
+    --color-yellow-800: #987C3F;    /* #987C3F */
+    --color-yellow-900: #6F5B2F;    /* #6F5B2F */
+    --color-yellow-950: #473A1E;    /* #473A1E */
+    
+    /* Aurora Green - with variations */
+    --color-green-50: #F6FAF4;      /* #F6FAF4 */
+    --color-green-100: #EBF4E6;     /* #EBF4E6 */
+    --color-green-200: #D7E9CE;     /* #D7E9CE */
+    --color-green-300: #C4DEB5;     /* #C4DEB5 */
+    --color-green-400: #B3CE9F;     /* #B3CE9F */
+    --color-green-500: #A3BE8C;     /* #A3BE8C - Nord 14 */
+    --color-green-600: #8EAA73;     /* #8EAA73 */
+    --color-green-700: #79925F;     /* #79925F */
+    --color-green-800: #60734B;     /* #60734B */
+    --color-green-900: #475537;     /* #475537 */
+    --color-green-950: #2E3623;     /* #2E3623 */
+    
+    /* IVPL - Blue shades based on #429AE1 (user's important color) */
+    --color-ivpl-50: #E8F4FD;       /* #E8F4FD - Lightest */
+    --color-ivpl-100: #D1E9FB;      /* #D1E9FB */
+    --color-ivpl-200: #A3D3F7;      /* #A3D3F7 */
+    --color-ivpl-300: #74BDF3;      /* #74BDF3 - Around #429AE1 */
+    --color-ivpl-400: #53ABEC;      /* #53ABEC */
+    --color-ivpl-500: #429AE1;      /* #429AE1 - User's special blue (middle) */
+    --color-ivpl-600: #3580C8;      /* #3580C8 */
+    --color-ivpl-700: #2968A6;      /* #2968A6 - Darker */
+    --color-ivpl-800: #1E5284;      /* #1E5284 */
+    --color-ivpl-900: #163D63;      /* #163D63 */
+    --color-ivpl-950: #0E2842;      /* #0E2842 - Darkest */
+    
+    /* Semantic Color Mappings */
+    --color-primary: var(--color-frost-700);            /* #5E81AC */
+    --color-primary-hover: var(--color-frost-600);      /* #81A1C1 */
+    --color-success: var(--color-green-500);            /* #A3BE8C */
+    --color-danger: var(--color-red-500);               /* #BF616A */
+    --color-warning: var(--color-yellow-500);           /* #EBCB8B */
+    --color-info: var(--color-ivpl-500);                /* #429AE1 - User's special blue */
+    
+    /* Background colors - Dark mode default */
+    --color-bg-darkest: var(--color-nord-800);          /* #2E3440 */
+    --color-bg-darker: var(--color-nord-700);           /* #3B4252 */
+    --color-bg-dark: var(--color-nord-600);             /* #434C5E */
+    --color-bg-medium: var(--color-nord-500);           /* #4C566A */
+    --color-bg-light: var(--color-nord-400);            /* #A9B2BA */
+    
+    /* Text colors */
+    --color-text-light: var(--color-nord-200);          /* #D8DEE9 */
+    --color-text-lighter: var(--color-nord-100);        /* #E5E9F0 */
+    --color-text-lightest: var(--color-nord-50);        /* #ECEFF4 */
+    --color-text-muted: var(--color-nord-300);          /* #C2CAD0 */
+}
+
+/* Apply Nord theme to Filament components with dark mode support */
+@layer components {
+    /* Dark mode styles (default) */
+    .dark, :root {
+        /* Primary buttons with Nord frost colors */
+        .fi-btn-primary {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            
+            &:hover {
+                background-color: var(--color-primary-hover);
+                border-color: var(--color-primary-hover);
+            }
+        }
+        
+        /* Success state */
+        .fi-btn-success,
+        .fi-badge-success {
+            background-color: var(--color-success);
+        }
+        
+        /* Danger/error state */
+        .fi-btn-danger,
+        .fi-badge-danger {
+            background-color: var(--color-danger);
+        }
+        
+        /* Warning state */
+        .fi-btn-warning,
+        .fi-badge-warning {
+            background-color: var(--color-warning);
+            color: var(--color-bg-darkest);
+        }
+        
+        /* Info state */
+        .fi-btn-info,
+        .fi-badge-info {
+            background-color: var(--color-info);
+            color: var(--color-bg-darkest);
+        }
+        
+        /* Sidebar styling with dark Nord colors */
+        .fi-sidebar {
+            background-color: var(--color-bg-darkest);
+        }
+        
+        .fi-sidebar-item {
+            color: var(--color-text-light);
+            
+            &:hover,
+            &.fi-sidebar-item-active {
+                background-color: var(--color-bg-darker);
+                color: var(--color-text-lightest);
+            }
+        }
+        
+        /* Header styling */
+        .fi-header {
+            background-color: var(--color-bg-darker);
+            border-bottom-color: var(--color-bg-medium);
+        }
+        
+        /* Card/Panel styling - lighter in dark mode */
+        .fi-section {
+            background-color: var(--color-bg-darker);
+            border-color: var(--color-bg-dark);
+        }
+        
+        /* Link colors */
+        .fi-link {
+            color: var(--color-primary);
+            
+            &:hover {
+                color: var(--color-primary-hover);
+            }
+        }
+        
+        /* Form input focus states */
+        .fi-input:focus,
+        .fi-select:focus,
+        .fi-textarea:focus {
+            border-color: var(--color-primary);
+            ring-color: var(--color-primary);
+        }
+        
+        /* Table header styling */
+        .fi-ta-header {
+            background-color: var(--color-bg-darker);
+            color: var(--color-text-lightest);
+        }
+        
+        /* Table row hover */
+        .fi-ta-row:hover {
+            background-color: var(--color-bg-dark);
+        }
+        
+        /* Pagination active state */
+        .fi-pagination-item-active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        /* Notification styling */
+        .fi-notification-success {
+            background-color: var(--color-success);
+        }
+        
+        .fi-notification-danger {
+            background-color: var(--color-danger);
+        }
+        
+        .fi-notification-warning {
+            background-color: var(--color-warning);
+            color: var(--color-bg-darkest);
+        }
+        
+        .fi-notification-info {
+            background-color: var(--color-info);
+            color: var(--color-bg-darkest);
+        }
+        
+        /* ==== EXTENSIVE FILAMENT & TAILWIND STYLING ==== */
+        
+        /* Main page container */
+        .fi-main {
+            background-color: var(--color-bg-darkest);
+        }
+        
+        /* Cards and Panels */
+        .fi-section,
+        .fi-card,
+        .fi-widget {
+            background-color: var(--color-bg-darker);
+            border-color: var(--color-bg-dark);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        /* Widget headers */
+        .fi-wi-header {
+            background-color: var(--color-bg-dark);
+            border-bottom-color: var(--color-bg-medium);
+        }
+        
+        /* Forms */
+        .fi-fo-field-wrp {
+            background-color: transparent;
+        }
+        
+        .fi-input,
+        .fi-select,
+        .fi-textarea {
+            background-color: var(--color-bg-dark);
+            border-color: var(--color-bg-medium);
+            color: var(--color-text-light);
+            
+            &::placeholder {
+                color: var(--color-text-muted);
+            }
+            
+            &:focus {
+                background-color: var(--color-bg-darker);
+                border-color: var(--color-primary);
+                ring-color: var(--color-primary);
+                box-shadow: 0 0 0 3px rgb(94 129 172 / 0.1);
+            }
+            
+            &:disabled {
+                background-color: var(--color-nord-700);
+                opacity: 0.6;
+            }
+        }
+        
+        /* Checkboxes and Radio buttons */
+        .fi-checkbox,
+        .fi-radio {
+            border-color: var(--color-bg-medium);
+            
+            &:checked {
+                background-color: var(--color-primary);
+                border-color: var(--color-primary);
+            }
+            
+            &:focus {
+                ring-color: var(--color-primary);
+            }
+        }
+        
+        /* Toggle switches */
+        .fi-toggle {
+            background-color: var(--color-bg-medium);
+            
+            &:checked {
+                background-color: var(--color-primary);
+            }
+        }
+        
+        /* Tables */
+        .fi-ta {
+            background-color: var(--color-bg-darker);
+            border-color: var(--color-bg-dark);
+        }
+        
+        .fi-ta-header-cell {
+            background-color: var(--color-bg-dark);
+            color: var(--color-text-lightest);
+            font-weight: 600;
+        }
+        
+        .fi-ta-row {
+            border-bottom-color: var(--color-bg-dark);
+            
+            &:hover {
+                background-color: var(--color-nord-700);
+            }
+            
+            &.fi-ta-row-selected {
+                background-color: var(--color-frost-900);
+            }
+        }
+        
+        .fi-ta-cell {
+            color: var(--color-text-light);
+        }
+        
+        .fi-ta-empty-state {
+            color: var(--color-text-muted);
+        }
+        
+        /* Action buttons in tables */
+        .fi-ta-actions {
+            .fi-link {
+                color: var(--color-primary);
+                
+                &:hover {
+                    color: var(--color-primary-hover);
+                }
+            }
+        }
+        
+        /* Modals */
+        .fi-modal {
+            background-color: var(--color-bg-darker);
+            border-color: var(--color-bg-dark);
+        }
+        
+        .fi-modal-header {
+            background-color: var(--color-bg-dark);
+            border-bottom-color: var(--color-bg-medium);
+        }
+        
+        .fi-modal-footer {
+            background-color: var(--color-bg-dark);
+            border-top-color: var(--color-bg-medium);
+        }
+        
+        /* Dropdown menus */
+        .fi-dropdown-list {
+            background-color: var(--color-bg-darker);
+            border-color: var(--color-bg-dark);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+        
+        .fi-dropdown-list-item {
+            color: var(--color-text-light);
+            
+            &:hover {
+                background-color: var(--color-bg-dark);
+            }
+            
+            &:focus {
+                background-color: var(--color-bg-dark);
+            }
+        }
+        
+        /* Badges */
+        .fi-badge {
+            font-weight: 500;
+        }
+        
+        .fi-badge-primary {
+            background-color: var(--color-frost-700);
+            color: white;
+        }
+        
+        /* Tabs */
+        .fi-tabs {
+            border-bottom-color: var(--color-bg-dark);
+        }
+        
+        .fi-tabs-tab {
+            color: var(--color-text-muted);
+            border-bottom-color: transparent;
+            
+            &:hover {
+                color: var(--color-text-light);
+                border-bottom-color: var(--color-bg-medium);
+            }
+            
+            &.fi-tabs-tab-active {
+                color: var(--color-primary);
+                border-bottom-color: var(--color-primary);
+            }
+        }
+        
+        /* Breadcrumbs */
+        .fi-breadcrumbs {
+            .fi-breadcrumbs-item {
+                color: var(--color-text-muted);
+                
+                &:hover {
+                    color: var(--color-text-light);
+                }
+                
+                &.fi-breadcrumbs-item-active {
+                    color: var(--color-text-lightest);
+                }
+            }
+        }
+        
+        /* Stats/Info cards */
+        .fi-stats-card {
+            background-color: var(--color-bg-darker);
+            border-color: var(--color-bg-dark);
+        }
+        
+        .fi-stats-card-value {
+            color: var(--color-text-lightest);
+        }
+        
+        .fi-stats-card-label {
+            color: var(--color-text-muted);
+        }
+        
+        /* File upload */
+        .fi-fo-file-upload {
+            background-color: var(--color-bg-dark);
+            border-color: var(--color-bg-medium);
+            
+            &:hover {
+                border-color: var(--color-primary);
+            }
+        }
+        
+        /* Search input */
+        .fi-global-search-field {
+            background-color: var(--color-bg-dark);
+            border-color: var(--color-bg-medium);
+            color: var(--color-text-light);
+            
+            &:focus {
+                border-color: var(--color-primary);
+                ring-color: var(--color-primary);
+            }
+        }
+        
+        /* Navigation */
+        .fi-sidebar-nav-item {
+            color: var(--color-text-light);
+            
+            &:hover {
+                background-color: var(--color-nord-700);
+                color: var(--color-text-lightest);
+            }
+            
+            &.fi-sidebar-nav-item-active {
+                background-color: var(--color-frost-900);
+                color: var(--color-frost-200);
+            }
+        }
+        
+        .fi-sidebar-group-label {
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        
+        /* User menu */
+        .fi-user-menu-button {
+            &:hover {
+                background-color: var(--color-bg-dark);
+            }
+        }
+        
+        /* Alerts/Banners */
+        .fi-alert {
+            border-color: var(--color-bg-dark);
+        }
+        
+        .fi-alert-success {
+            background-color: var(--color-green-900);
+            border-color: var(--color-green-700);
+            color: var(--color-green-100);
+        }
+        
+        .fi-alert-danger {
+            background-color: var(--color-red-900);
+            border-color: var(--color-red-700);
+            color: var(--color-red-100);
+        }
+        
+        .fi-alert-warning {
+            background-color: var(--color-yellow-900);
+            border-color: var(--color-yellow-700);
+            color: var(--color-yellow-100);
+        }
+        
+        .fi-alert-info {
+            background-color: var(--color-frost-900);
+            border-color: var(--color-frost-700);
+            color: var(--color-frost-100);
+        }
+        
+        /* Loading spinner */
+        .fi-spinner {
+            color: var(--color-primary);
+        }
+        
+        /* Pagination */
+        .fi-pagination {
+            border-top-color: var(--color-bg-dark);
+        }
+        
+        .fi-pagination-item {
+            color: var(--color-text-light);
+            
+            &:hover:not(.fi-pagination-item-active) {
+                background-color: var(--color-bg-dark);
+            }
+        }
+        
+        /* Helper text */
+        .fi-fo-field-hint-text,
+        .fi-fo-helper-text {
+            color: var(--color-text-muted);
+        }
+        
+        /* Error text */
+        .fi-fo-field-error-message {
+            color: var(--color-red-400);
+        }
+        
+        /* Tooltips */
+        .fi-tooltip {
+            background-color: var(--color-nord-700);
+            color: var(--color-text-lightest);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+        }
+        
+        /* Code blocks */
+        code {
+            background-color: var(--color-nord-700);
+            color: var(--color-frost-400);
+            border-radius: 0.25rem;
+            padding: 0.125rem 0.375rem;
+        }
+        
+        pre {
+            background-color: var(--color-nord-700);
+            border-color: var(--color-bg-dark);
+            border-radius: 0.375rem;
+            
+            code {
+                background-color: transparent;
+                padding: 0;
+            }
+        }
+        
+        /* Scrollbars */
+        ::-webkit-scrollbar {
+            width: 0.75rem;
+            height: 0.75rem;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background-color: var(--color-bg-darker);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--color-bg-medium);
+            border-radius: 0.375rem;
+            
+            &:hover {
+                background-color: var(--color-nord-400);
+            }
+        }
+    }
+    
+    /* Light mode overrides (if ever needed) */
+    .light {
+        /* Background colors - inverted for light mode */
+        --color-bg-darkest: var(--color-nord-50);
+        --color-bg-darker: var(--color-nord-100);
+        --color-bg-dark: var(--color-nord-200);
+        --color-bg-medium: var(--color-nord-300);
+        
+        /* Text colors - inverted for light mode */
+        --color-text-light: var(--color-nord-600);
+        --color-text-lighter: var(--color-nord-700);
+        --color-text-lightest: var(--color-nord-800);
+        
+        .fi-section {
+            background-color: white;
+            border-color: var(--color-nord-200);
+        }
+        
+        .fi-ta-row:hover {
+            background-color: var(--color-nord-50);
+        }
+    }
+}
