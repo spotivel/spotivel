@@ -1,155 +1,221 @@
+@import "tailwindcss";
 @import '/vendor/filament/filament/resources/css/theme.css';
 
-@config 'tailwind.config.js';
+/* Configure content sources for TailwindCSS v4 */
+@source "../../app/Filament/**/*.php";
+@source "../../resources/views/filament/**/*.blade.php";
+@source "../../../vendor/filament/**/*.blade.php";
 
-/* Default TailwindCSS Directives */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Nord Theme Customizations */
-:root {
-    /* Polar Night - Dark colors */
-    --nord0: #2E3440;
-    --nord1: #3B4252;
-    --nord2: #434C5E;
-    --nord3: #4C566A;
+/* Nord Theme - Dark Mode First Approach */
+@theme {
+    /* Nord Color Palette with Semantic Naming */
     
-    /* Snow Storm - Light colors */
-    --nord4: #D8DEE9;
-    --nord5: #E5E9F0;
-    --nord6: #ECEFF4;
+    /* Dark Shades (Polar Night) */
+    --color-nord-darkest: #2E3440;
+    --color-nord-darker: #3B4252;
+    --color-nord-dark: #434C5E;
+    --color-nord-medium: #4C566A;
     
-    /* Frost - Blue/Cyan colors */
-    --nord7: #8FBCBB;
-    --nord8: #88C0D0;
-    --nord9: #81A1C1;
-    --nord10: #5E81AC;
+    /* Light Shades (Snow Storm) */
+    --color-nord-light: #D8DEE9;
+    --color-nord-lighter: #E5E9F0;
+    --color-nord-lightest: #ECEFF4;
     
-    /* Aurora - Accent colors */
-    --nord11: #BF616A; /* Red */
-    --nord12: #D08770; /* Orange */
-    --nord13: #EBCB8B; /* Yellow */
-    --nord14: #A3BE8C; /* Green */
-    --nord15: #B48EAD; /* Purple */
+    /* Frost Shades (Blue/Cyan) */
+    --color-nord-frost-teal: #8FBCBB;
+    --color-nord-frost-cyan: #88C0D0;
+    --color-nord-frost-blue: #81A1C1;
+    --color-nord-frost-dark: #5E81AC;
+    
+    /* Aurora Shades (Accents) */
+    --color-nord-aurora-red: #BF616A;
+    --color-nord-aurora-orange: #D08770;
+    --color-nord-aurora-yellow: #EBCB8B;
+    --color-nord-aurora-green: #A3BE8C;
+    --color-nord-aurora-purple: #B48EAD;
+    
+    /* Semantic Color Mappings */
+    --color-primary: var(--color-nord-frost-dark);
+    --color-primary-hover: var(--color-nord-frost-blue);
+    --color-success: var(--color-nord-aurora-green);
+    --color-danger: var(--color-nord-aurora-red);
+    --color-warning: var(--color-nord-aurora-yellow);
+    --color-info: var(--color-nord-frost-cyan);
+    
+    /* Background colors - Dark mode default */
+    --color-bg-darkest: var(--color-nord-darkest);
+    --color-bg-darker: var(--color-nord-darker);
+    --color-bg-dark: var(--color-nord-dark);
+    --color-bg-medium: var(--color-nord-medium);
+    
+    /* Text colors */
+    --color-text-light: var(--color-nord-light);
+    --color-text-lighter: var(--color-nord-lighter);
+    --color-text-lightest: var(--color-nord-lightest);
 }
 
-/* Apply Nord theme to the admin panel */
+/* Apply Nord theme to Filament components with dark mode support */
 @layer components {
-    /* Primary button styling with Nord frost colors */
-    .fi-btn-primary {
-        background-color: var(--nord10) !important;
-        border-color: var(--nord10) !important;
+    /* Dark mode styles (default) */
+    .dark, :root {
+        /* Primary buttons with Nord frost colors */
+        .fi-btn-primary {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            
+            &:hover {
+                background-color: var(--color-primary-hover);
+                border-color: var(--color-primary-hover);
+            }
+        }
+        
+        /* Success state */
+        .fi-btn-success,
+        .fi-badge-success {
+            background-color: var(--color-success);
+        }
+        
+        /* Danger/error state */
+        .fi-btn-danger,
+        .fi-badge-danger {
+            background-color: var(--color-danger);
+        }
+        
+        /* Warning state */
+        .fi-btn-warning,
+        .fi-badge-warning {
+            background-color: var(--color-warning);
+            color: var(--color-bg-darkest);
+        }
+        
+        /* Info state */
+        .fi-btn-info,
+        .fi-badge-info {
+            background-color: var(--color-info);
+            color: var(--color-bg-darkest);
+        }
+        
+        /* Sidebar styling with dark Nord colors */
+        .fi-sidebar {
+            background-color: var(--color-bg-darkest);
+        }
+        
+        .fi-sidebar-item {
+            color: var(--color-text-light);
+            
+            &:hover,
+            &.fi-sidebar-item-active {
+                background-color: var(--color-bg-darker);
+                color: var(--color-text-lightest);
+            }
+        }
+        
+        /* Header styling */
+        .fi-header {
+            background-color: var(--color-bg-darker);
+            border-bottom-color: var(--color-bg-medium);
+        }
+        
+        /* Card/Panel styling - lighter in dark mode */
+        .fi-section {
+            background-color: var(--color-bg-darker);
+            border-color: var(--color-bg-dark);
+        }
+        
+        /* Link colors */
+        .fi-link {
+            color: var(--color-primary);
+            
+            &:hover {
+                color: var(--color-primary-hover);
+            }
+        }
+        
+        /* Form input focus states */
+        .fi-input:focus,
+        .fi-select:focus,
+        .fi-textarea:focus {
+            border-color: var(--color-primary);
+            ring-color: var(--color-primary);
+        }
+        
+        /* Table header styling */
+        .fi-ta-header {
+            background-color: var(--color-bg-darker);
+            color: var(--color-text-lightest);
+        }
+        
+        /* Table row hover */
+        .fi-ta-row:hover {
+            background-color: var(--color-bg-dark);
+        }
+        
+        /* Pagination active state */
+        .fi-pagination-item-active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        /* Notification styling */
+        .fi-notification-success {
+            background-color: var(--color-success);
+        }
+        
+        .fi-notification-danger {
+            background-color: var(--color-danger);
+        }
+        
+        .fi-notification-warning {
+            background-color: var(--color-warning);
+            color: var(--color-bg-darkest);
+        }
+        
+        .fi-notification-info {
+            background-color: var(--color-info);
+            color: var(--color-bg-darkest);
+        }
+        
+        /* Dashboard grid styling - 2 column layout (8 wide + 4 wide) */
+        .fi-dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        /* Main content area (8 columns wide) */
+        .fi-dashboard-main {
+            background-color: var(--color-bg-darker);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+        
+        /* Sidebar content area (4 columns wide) */
+        .fi-dashboard-sidebar {
+            background-color: var(--color-bg-darker);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
     }
     
-    .fi-btn-primary:hover {
-        background-color: var(--nord9) !important;
-        border-color: var(--nord9) !important;
-    }
-    
-    /* Success state with Nord green */
-    .fi-btn-success,
-    .fi-badge-success {
-        background-color: var(--nord14) !important;
-    }
-    
-    /* Danger/error state with Nord red */
-    .fi-btn-danger,
-    .fi-badge-danger {
-        background-color: var(--nord11) !important;
-    }
-    
-    /* Warning state with Nord yellow */
-    .fi-btn-warning,
-    .fi-badge-warning {
-        background-color: var(--nord13) !important;
-        color: var(--nord0) !important;
-    }
-    
-    /* Info state with Nord cyan */
-    .fi-btn-info,
-    .fi-badge-info {
-        background-color: var(--nord8) !important;
-        color: var(--nord0) !important;
-    }
-    
-    /* Sidebar styling with Nord dark colors */
-    .fi-sidebar {
-        background-color: var(--nord0) !important;
-    }
-    
-    .fi-sidebar-item {
-        color: var(--nord4) !important;
-    }
-    
-    .fi-sidebar-item:hover,
-    .fi-sidebar-item-active {
-        background-color: var(--nord1) !important;
-        color: var(--nord6) !important;
-    }
-    
-    /* Header styling */
-    .fi-header {
-        background-color: var(--nord1) !important;
-        border-bottom-color: var(--nord3) !important;
-    }
-    
-    /* Card/Panel styling */
-    .fi-section {
-        background-color: white !important;
-        border-color: var(--nord4) !important;
-    }
-    
-    /* Link colors with Nord frost */
-    .fi-link {
-        color: var(--nord10) !important;
-    }
-    
-    .fi-link:hover {
-        color: var(--nord9) !important;
-    }
-    
-    /* Form input focus states */
-    .fi-input:focus,
-    .fi-select:focus,
-    .fi-textarea:focus {
-        border-color: var(--nord10) !important;
-        ring-color: var(--nord10) !important;
-    }
-    
-    /* Table header styling */
-    .fi-ta-header {
-        background-color: var(--nord1) !important;
-        color: var(--nord6) !important;
-    }
-    
-    /* Table row hover */
-    .fi-ta-row:hover {
-        background-color: var(--nord6) !important;
-    }
-    
-    /* Pagination active state */
-    .fi-pagination-item-active {
-        background-color: var(--nord10) !important;
-        color: white !important;
-    }
-    
-    /* Notification styling */
-    .fi-notification-success {
-        background-color: var(--nord14) !important;
-    }
-    
-    .fi-notification-danger {
-        background-color: var(--nord11) !important;
-    }
-    
-    .fi-notification-warning {
-        background-color: var(--nord13) !important;
-        color: var(--nord0) !important;
-    }
-    
-    .fi-notification-info {
-        background-color: var(--nord8) !important;
-        color: var(--nord0) !important;
+    /* Light mode overrides (if ever needed) */
+    .light {
+        /* Background colors - inverted for light mode */
+        --color-bg-darkest: var(--color-nord-lightest);
+        --color-bg-darker: var(--color-nord-lighter);
+        --color-bg-dark: var(--color-nord-light);
+        
+        /* Text colors - inverted for light mode */
+        --color-text-light: var(--color-nord-dark);
+        --color-text-lighter: var(--color-nord-darker);
+        --color-text-lightest: var(--color-nord-darkest);
+        
+        .fi-section {
+            background-color: white;
+            border-color: var(--color-nord-light);
+        }
+        
+        .fi-ta-row:hover {
+            background-color: var(--color-nord-lightest);
+        }
     }
 }
