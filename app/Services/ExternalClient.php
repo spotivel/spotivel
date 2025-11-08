@@ -8,53 +8,23 @@ use Illuminate\Support\Facades\Http;
 
 class ExternalClient implements HttpClientInterface
 {
-    protected string $baseUrl;
-    protected array $headers = [];
-    protected int $timeout = 30;
-
     /**
      * Create a new external client instance.
      */
-    public function __construct(string $baseUrl = '', array $headers = [])
-    {
-        $this->baseUrl = $baseUrl;
-        $this->headers = $headers;
-    }
+    public function __construct(
+        protected string $baseUrl = '',
+        protected array $headers = [],
+        protected int $timeout = 30
+    ) {}
 
     /**
-     * Set the base URL for the client.
-     */
-    public function setBaseUrl(string $url): self
-    {
-        $this->baseUrl = $url;
-        return $this;
-    }
-
-    /**
-     * Set headers for the client.
-     */
-    public function setHeaders(array $headers): self
-    {
-        $this->headers = array_merge($this->headers, $headers);
-        return $this;
-    }
-
-    /**
-     * Set the timeout for requests.
-     */
-    public function setTimeout(int $timeout): self
-    {
-        $this->timeout = $timeout;
-        return $this;
-    }
-
-    /**
-     * Get a configured HTTP request instance.
+     * Get a configured HTTP request instance with automatic exception throwing.
      */
     public function request(): PendingRequest
     {
         return Http::baseUrl($this->baseUrl)
             ->withHeaders($this->headers)
-            ->timeout($this->timeout);
+            ->timeout($this->timeout)
+            ->throw();
     }
 }

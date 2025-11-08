@@ -17,3 +17,4 @@ Thumbs.db
 /storage/*.key
 /composer.lock
 /package-lock.json
+/bootstrap/cache/

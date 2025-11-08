@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('track_id')->constrained()->onDelete('cascade');
             $table->integer('position')->default(0);
             $table->timestamps();
-            
+
             $table->unique(['playlist_id', 'track_id', 'position']);
         });
     }

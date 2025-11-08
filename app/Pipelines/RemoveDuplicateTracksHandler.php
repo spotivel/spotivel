@@ -11,7 +11,6 @@ class RemoveDuplicateTracksHandler
      * Handle the pipeline to remove duplicate tracks.
      *
      * @param  Collection  $tracks
-     * @param  Closure  $next
      * @return mixed
      */
     public function handle($tracks, Closure $next)
@@ -21,7 +20,7 @@ class RemoveDuplicateTracksHandler
 
         // Also check for duplicates by name and duration
         $uniqueTracks = $uniqueTracks->unique(function ($track) {
-            return strtolower($track['name']) . '-' . ($track['duration_ms'] ?? '');
+            return strtolower($track['name']).'-'.($track['duration_ms'] ?? '');
         });
 
         return $next($uniqueTracks);

@@ -118,4 +118,44 @@ class SpotifyTracksClient extends SpotifyClient
             ],
         ]);
     }
+
+    /**
+     * Search for tracks on Spotify.
+     */
+    public function search(string $query, int $limit = 20, int $offset = 0): array
+    {
+        $response = $this->request()->get('/search', [
+            'q' => $query,
+            'type' => 'track',
+            'limit' => $limit,
+            'offset' => $offset,
+        ])->json();
+
+        return $response['tracks']['items'] ?? [];
+    }
+
+    /**
+     * Search for live versions of a track.
+     * Searches using artist and track name to find live recordings.
+     */
+    public function searchLiveVersions(string $trackName, string $artistName, int $limit = 2): array
+    {
+        // Construct search query for live versions
+        $query = $this->buildLiveSearchQuery($artistName, $trackName);
+
+        return $this->search($query, $limit);
+    }
+
+    /**
+     * Build search query for live versions.
+     * Places artist first, then track, and adds "live" if not already present.
+     */
+    private function buildLiveSearchQuery(string $artistName, string $trackName): string
+    {
+        // Check if "live" is already in the track name
+        $liveKeyword = stripos($trackName, 'live') === false ? ' live' : '';
+
+        // Place artist first, then track name, then add live keyword if needed
+        return sprintf('artist:"%s" track:"%s"%s', $artistName, $trackName, $liveKeyword);
+    }
 }
