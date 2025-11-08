@@ -417,6 +417,91 @@ tests/
 - Pipeline pattern allows composable optimizations
 - Memoization where applicable
 
+## Development Commands
+
+### Setup
+```bash
+# Install dependencies
+composer install
+
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+
+# Run migrations
+php artisan migrate
+```
+
+### Testing
+```bash
+# Run all tests
+./vendor/bin/phpunit
+
+# Run tests with verbose output
+./vendor/bin/phpunit --testdox
+
+# Run specific test suite
+./vendor/bin/phpunit --testsuite=Unit
+./vendor/bin/phpunit --testsuite=Feature
+
+# Run specific test file
+./vendor/bin/phpunit tests/Unit/Services/Database/TrackServiceTest.php
+```
+
+### Linting & Code Quality
+```bash
+# Run Pint (auto-fix code style)
+./vendor/bin/pint
+
+# Run Pint in test mode (check without fixing)
+./vendor/bin/pint --test
+
+# Run PHPStan (static analysis)
+./vendor/bin/phpstan analyse
+```
+
+### Development Server
+```bash
+# Start Laravel development server
+php artisan serve
+
+# Access Filament admin panel
+# Navigate to: http://localhost:8000/admin
+```
+
+## CI/CD Workflows
+
+This repository uses GitHub Actions for continuous integration:
+
+### Available Workflows
+- **PHPUnit** (`.github/workflows/phpunit.yml`) - Runs test suite
+- **Pint** (`.github/workflows/pint.yml`) - Validates code style
+- **PHPStan** (`.github/workflows/phpstan.yml`) - Runs static analysis
+
+All workflows are manually triggered via `workflow_dispatch` and support PHP 8.2 and 8.3.
+
+### Pre-commit Checklist
+Before committing code, ensure:
+```bash
+# 1. Code style is correct
+./vendor/bin/pint
+
+# 2. Static analysis passes
+./vendor/bin/phpstan analyse
+
+# 3. All tests pass
+./vendor/bin/phpunit
+```
+
+## Environment Requirements
+
+- **PHP**: ^8.2
+- **Laravel**: ^11.0
+- **Filament**: ^4.0
+- **Database**: MySQL/MariaDB/PostgreSQL/SQLite (SQLite for testing)
+
 ## Remember
 
 **When in doubt:**
