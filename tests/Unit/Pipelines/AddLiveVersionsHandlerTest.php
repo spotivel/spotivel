@@ -12,6 +12,7 @@ use Tests\TestCase;
 class AddLiveVersionsHandlerTest extends TestCase
 {
     protected AddLiveVersionsHandler $handler;
+
     protected SpotifyTracksClient $tracksClient;
 
     protected function setUp(): void

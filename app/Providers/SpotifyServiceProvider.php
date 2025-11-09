@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Contracts\OAuthServiceInterface;
 use App\Services\Decorators\HttpClientExceptionDecorator;
 use App\Services\Decorators\RequestLoggerDecorator;
 use App\Services\ExternalClient;
 use App\Services\SpotifyClient;
+use App\Services\SpotifyOAuthService;
 use Illuminate\Support\ServiceProvider;
 
 class SpotifyServiceProvider extends ServiceProvider
@@ -15,9 +17,20 @@ class SpotifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Register SpotifyOAuthService
+        $this->app->singleton(OAuthServiceInterface::class, function ($app) {
+            return new SpotifyOAuthService(
+                clientId: config('services.spotify.client_id'),
+                clientSecret: config('services.spotify.client_secret'),
+                redirectUri: config('services.spotify.redirect')
+            );
+        });
+
         // Register ExternalClient configured for Spotify with decorators
         $this->app->singleton(ExternalClient::class, function ($app) {
-            $accessToken = config('services.spotify.access_token', '');
+            // Try to get token from cache first, fallback to config
+            $oauthService = $app->make(OAuthServiceInterface::class);
+            $accessToken = $oauthService->getCachedToken() ?? config('services.spotify.access_token', '');
 
             $client = new ExternalClient(
                 baseUrl: 'https://api.spotify.com/v1',
