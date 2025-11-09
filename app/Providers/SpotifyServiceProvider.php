@@ -17,12 +17,33 @@ class SpotifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Register OAuth HTTP client for Spotify token endpoints
+        $this->app->singleton('spotify.oauth.client', function ($app) {
+            $client = new ExternalClient(
+                baseUrl: '',
+                headers: [],
+                timeout: 30
+            );
+
+            // Decorate with exception handling
+            $client = new HttpClientExceptionDecorator($client);
+
+            // Decorate with request logging
+            $client = new RequestLoggerDecorator($client);
+
+            return $client;
+        });
+
         // Register SpotifyOAuthService
         $this->app->singleton(OAuthServiceInterface::class, function ($app) {
             return new SpotifyOAuthService(
+                client: $app->make('spotify.oauth.client'),
                 clientId: config('services.spotify.client_id'),
                 clientSecret: config('services.spotify.client_secret'),
-                redirectUri: config('services.spotify.redirect')
+                redirectUri: config('services.spotify.redirect'),
+                scopes: config('services.spotify.scopes'),
+                authUrl: config('services.spotify.auth_url'),
+                tokenUrl: config('services.spotify.token_url')
             );
         });
 

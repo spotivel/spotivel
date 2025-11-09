@@ -19,6 +19,9 @@ return [
         'client_secret' => env('SPOTIFY_CLIENT_SECRET'),
         'access_token' => env('SPOTIFY_ACCESS_TOKEN'),
         'redirect' => env('SPOTIFY_REDIRECT_URI'),
+        'scopes' => env('SPOTIFY_SCOPES', 'user-library-read playlist-read-private playlist-modify-public playlist-modify-private'),
+        'auth_url' => env('SPOTIFY_AUTH_URL', 'https://accounts.spotify.com/authorize'),
+        'token_url' => env('SPOTIFY_TOKEN_URL', 'https://accounts.spotify.com/api/token'),
     ],
 
 ];

@@ -18,10 +18,21 @@ class SpotifyOAuthServiceTest extends TestCase
         // Use array cache driver for testing
         config(['cache.default' => 'array']);
 
+        // Create a mock HTTP client
+        $mockClient = new \App\Services\ExternalClient(
+            baseUrl: '',
+            headers: [],
+            timeout: 30
+        );
+
         $this->service = new SpotifyOAuthService(
+            client: $mockClient,
             clientId: 'test-client-id',
             clientSecret: 'test-client-secret',
-            redirectUri: 'http://localhost/auth/spotify/callback'
+            redirectUri: 'http://localhost/auth/spotify/callback',
+            scopes: 'user-library-read playlist-read-private',
+            authUrl: 'https://accounts.spotify.com/authorize',
+            tokenUrl: 'https://accounts.spotify.com/api/token'
         );
     }
 

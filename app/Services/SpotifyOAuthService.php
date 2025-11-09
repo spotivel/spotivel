@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Contracts\HttpClientInterface;
 use App\Contracts\OAuthServiceInterface;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 
 class SpotifyOAuthService implements OAuthServiceInterface
 {
@@ -12,11 +12,13 @@ class SpotifyOAuthService implements OAuthServiceInterface
      * Create a new Spotify OAuth service instance.
      */
     public function __construct(
+        protected HttpClientInterface $client,
         protected string $clientId,
         protected string $clientSecret,
         protected string $redirectUri,
-        protected string $authUrl = 'https://accounts.spotify.com/authorize',
-        protected string $tokenUrl = 'https://accounts.spotify.com/api/token'
+        protected string $scopes,
+        protected string $authUrl,
+        protected string $tokenUrl
     ) {}
 
     /**
@@ -28,7 +30,7 @@ class SpotifyOAuthService implements OAuthServiceInterface
             'client_id' => $this->clientId,
             'response_type' => 'code',
             'redirect_uri' => $this->redirectUri,
-            'scope' => 'user-library-read playlist-read-private playlist-modify-public playlist-modify-private',
+            'scope' => $this->scopes,
         ]);
 
         return "{$this->authUrl}?{$params}";
@@ -39,13 +41,13 @@ class SpotifyOAuthService implements OAuthServiceInterface
      */
     public function getAccessToken(string $code): array
     {
-        $response = Http::asForm()->post($this->tokenUrl, [
+        $response = $this->client->request()->asForm()->post($this->tokenUrl, [
             'grant_type' => 'authorization_code',
             'code' => $code,
             'redirect_uri' => $this->redirectUri,
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
-        ])->throw();
+        ]);
 
         return $response->json();
     }
@@ -55,12 +57,12 @@ class SpotifyOAuthService implements OAuthServiceInterface
      */
     public function refreshAccessToken(string $refreshToken): array
     {
-        $response = Http::asForm()->post($this->tokenUrl, [
+        $response = $this->client->request()->asForm()->post($this->tokenUrl, [
             'grant_type' => 'refresh_token',
             'refresh_token' => $refreshToken,
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
-        ])->throw();
+        ]);
 
         return $response->json();
     }
