@@ -23,7 +23,9 @@ class Dashboard extends Page implements HasForms, HasTable
 
     // Icon constants for type safety
     private const ICON_SYNC = 'heroicon-o-arrow-path';
+
     private const ICON_EDIT = 'heroicon-o-pencil-square';
+
     private const ICON_MUSIC = 'heroicon-o-musical-note';
 
     protected static ?string $navigationIcon = 'heroicon-o-home';
@@ -50,7 +52,7 @@ class Dashboard extends Page implements HasForms, HasTable
             AlbumsTableWidget::class,
         ];
     }
-    
+
     public function table(Table $table): Table
     {
         return $table
@@ -94,7 +96,7 @@ class Dashboard extends Page implements HasForms, HasTable
                     ->modalSubmitActionLabel('Start Sync')
                     ->action(function (Playlist $record) {
                         SyncPlaylistJob::dispatch($record->id);
-                        
+
                         Notification::make()
                             ->title('Playlist sync started')
                             ->body("'{$record->name}' is being synced in the background.")
@@ -116,21 +118,21 @@ class Dashboard extends Page implements HasForms, HasTable
             ->description('Your most recently synced playlists from Spotify')
             ->striped();
     }
-    
+
     protected function tracksTable(): string
     {
         return view('filament::widgets.widget', [
             'widget' => $this->getCachedWidget(TracksTableWidget::class),
         ])->render();
     }
-    
+
     protected function artistsTable(): string
     {
         return view('filament::widgets.widget', [
             'widget' => $this->getCachedWidget(ArtistsTableWidget::class),
         ])->render();
     }
-    
+
     protected function albumsTable(): string
     {
         return view('filament::widgets.widget', [

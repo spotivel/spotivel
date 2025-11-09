@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\Playlist;
 use App\Services\SpotifyPlaylistsClient;
-use App\Transformers\PlaylistSyncDTOTransformer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

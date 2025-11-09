@@ -98,6 +98,7 @@ class SpotifyTracksClientSearchTest extends TestCase
 
         Http::assertSent(function ($request) {
             $url = $request->url();
+
             // Artist should come first, then track
             return str_contains($url, 'artist%3A%22Test+Artist%22') &&
                    str_contains($url, 'track%3A%22Test+Track%22');
@@ -139,6 +140,7 @@ class SpotifyTracksClientSearchTest extends TestCase
         // Assert - should not add extra "live" keyword
         Http::assertSent(function ($request) {
             $url = $request->url();
+
             // Count occurrences of "live" - should only appear once from track name
             return substr_count(strtolower($url), 'live') === 1;
         });
