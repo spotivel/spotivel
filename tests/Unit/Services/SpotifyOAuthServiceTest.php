@@ -5,8 +5,11 @@ namespace Tests\Unit\Services;
 use App\Services\SpotifyOAuthService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(SpotifyOAuthService::class)]
 class SpotifyOAuthServiceTest extends TestCase
 {
     protected SpotifyOAuthService $service;
@@ -42,7 +45,7 @@ class SpotifyOAuthServiceTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_authorization_url(): void
     {
         $url = $this->service->getAuthorizationUrl();
@@ -54,7 +57,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertStringContainsString('scope=', $url);
     }
 
-    /** @test */
+    #[Test]
     public function it_exchanges_code_for_access_token(): void
     {
         Http::fake([
@@ -83,7 +86,7 @@ class SpotifyOAuthServiceTest extends TestCase
         });
     }
 
-    /** @test */
+    #[Test]
     public function it_refreshes_access_token(): void
     {
         Http::fake([
@@ -110,7 +113,7 @@ class SpotifyOAuthServiceTest extends TestCase
         });
     }
 
-    /** @test */
+    #[Test]
     public function it_caches_access_token(): void
     {
         $this->service->cacheToken('test-access-token', 'test-refresh-token', 3600);
@@ -120,7 +123,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertNotNull(Cache::get('spotify_token_expires_at'));
     }
 
-    /** @test */
+    #[Test]
     public function it_retrieves_cached_token(): void
     {
         Cache::put('spotify_access_token', 'cached-token', 3600);
@@ -131,7 +134,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertEquals('cached-token', $token);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_null_when_no_cached_token(): void
     {
         $token = $this->service->getCachedToken();
@@ -139,7 +142,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertNull($token);
     }
 
-    /** @test */
+    #[Test]
     public function it_clears_cached_tokens(): void
     {
         Cache::put('spotify_access_token', 'test-token', 3600);
@@ -153,7 +156,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertNull(Cache::get('spotify_token_expires_at'));
     }
 
-    /** @test */
+    #[Test]
     public function it_auto_refreshes_token_when_about_to_expire(): void
     {
         // Set up token that expires in 3 minutes (less than 5 minute threshold)
@@ -176,7 +179,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertEquals('refreshed-token', Cache::get('spotify_access_token'));
     }
 
-    /** @test */
+    #[Test]
     public function it_clears_cache_when_refresh_fails(): void
     {
         Cache::put('spotify_access_token', 'old-token', 3600);
@@ -194,7 +197,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertNull(Cache::get('spotify_refresh_token'));
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_refresh_token_not_returned_on_refresh(): void
     {
         Cache::put('spotify_access_token', 'old-token', 3600);
@@ -217,7 +220,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertEquals('new-access-token', Cache::get('spotify_access_token'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_time_until_expiry(): void
     {
         $expiresIn = 3600;
@@ -230,7 +233,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertLessThanOrEqual($expiresIn, $timeUntilExpiry);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_null_when_no_token_for_expiry_check(): void
     {
         $timeUntilExpiry = $this->service->getTimeUntilExpiry();
@@ -238,7 +241,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertNull($timeUntilExpiry);
     }
 
-    /** @test */
+    #[Test]
     public function it_manually_refreshes_current_token(): void
     {
         Cache::put('spotify_access_token', 'old-token', 3600);
@@ -261,7 +264,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertEquals('new-refresh-token', Cache::get('spotify_refresh_token'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_false_when_refresh_fails(): void
     {
         Cache::put('spotify_refresh_token', 'test-refresh-token', 3600);
@@ -276,7 +279,7 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertNull(Cache::get('spotify_access_token'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_false_when_no_refresh_token(): void
     {
         $result = $this->service->refreshCurrentToken();

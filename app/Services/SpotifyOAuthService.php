@@ -38,6 +38,15 @@ class SpotifyOAuthService implements OAuthServiceInterface
 
     /**
      * Exchange authorization code for access token.
+     *
+     * Expected Response JSON:
+     * {
+     *   "access_token": "NgCXRK...MzYjw",
+     *   "token_type": "Bearer",
+     *   "scope": "user-library-read playlist-read-private",
+     *   "expires_in": 3600,
+     *   "refresh_token": "NgAagA...Um_SHo"
+     * }
      */
     public function getAccessToken(string $code): array
     {
@@ -54,6 +63,15 @@ class SpotifyOAuthService implements OAuthServiceInterface
 
     /**
      * Refresh the access token using refresh token.
+     *
+     * Expected Response JSON:
+     * {
+     *   "access_token": "NgA6ZcYI...ixn8bUQ",
+     *   "token_type": "Bearer",
+     *   "scope": "user-library-read playlist-read-private",
+     *   "expires_in": 3600,
+     *   "refresh_token": "NgAagA...Um_SHo" (optional - may not be returned)
+     * }
      */
     public function refreshAccessToken(string $refreshToken): array
     {

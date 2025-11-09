@@ -2,11 +2,15 @@
 
 namespace Tests\Feature\Console;
 
+use App\Console\Commands\RefreshSpotifyToken;
 use App\Contracts\OAuthServiceInterface;
 use Illuminate\Support\Facades\Cache;
 use Mockery;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(RefreshSpotifyToken::class)]
 class RefreshSpotifyTokenTest extends TestCase
 {
     protected function setUp(): void
@@ -24,7 +28,7 @@ class RefreshSpotifyTokenTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function it_refreshes_token_when_about_to_expire(): void
     {
         $mockOAuthService = Mockery::mock(OAuthServiceInterface::class);
@@ -48,7 +52,7 @@ class RefreshSpotifyTokenTest extends TestCase
             ->assertExitCode(0);
     }
 
-    /** @test */
+    #[Test]
     public function it_skips_refresh_when_token_is_still_valid(): void
     {
         $mockOAuthService = Mockery::mock(OAuthServiceInterface::class);
@@ -63,7 +67,7 @@ class RefreshSpotifyTokenTest extends TestCase
             ->assertExitCode(0);
     }
 
-    /** @test */
+    #[Test]
     public function it_fails_when_no_token_found(): void
     {
         $mockOAuthService = Mockery::mock(OAuthServiceInterface::class);
@@ -78,7 +82,7 @@ class RefreshSpotifyTokenTest extends TestCase
             ->assertExitCode(1);
     }
 
-    /** @test */
+    #[Test]
     public function it_fails_when_refresh_fails(): void
     {
         $mockOAuthService = Mockery::mock(OAuthServiceInterface::class);
