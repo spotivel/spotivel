@@ -216,4 +216,71 @@ class SpotifyOAuthServiceTest extends TestCase
         $this->assertEquals('original-refresh-token', Cache::get('spotify_refresh_token'));
         $this->assertEquals('new-access-token', Cache::get('spotify_access_token'));
     }
+
+    /** @test */
+    public function it_returns_time_until_expiry(): void
+    {
+        $expiresIn = 3600;
+        $this->service->cacheToken('test-token', 'test-refresh', $expiresIn);
+
+        $timeUntilExpiry = $this->service->getTimeUntilExpiry();
+
+        $this->assertNotNull($timeUntilExpiry);
+        $this->assertGreaterThan(0, $timeUntilExpiry);
+        $this->assertLessThanOrEqual($expiresIn, $timeUntilExpiry);
+    }
+
+    /** @test */
+    public function it_returns_null_when_no_token_for_expiry_check(): void
+    {
+        $timeUntilExpiry = $this->service->getTimeUntilExpiry();
+
+        $this->assertNull($timeUntilExpiry);
+    }
+
+    /** @test */
+    public function it_manually_refreshes_current_token(): void
+    {
+        Cache::put('spotify_access_token', 'old-token', 3600);
+        Cache::put('spotify_refresh_token', 'test-refresh-token', 3600);
+        Cache::put('spotify_token_expires_at', now()->addMinutes(10)->timestamp, 3600);
+
+        Http::fake([
+            'https://accounts.spotify.com/api/token' => Http::response([
+                'access_token' => 'new-access-token',
+                'refresh_token' => 'new-refresh-token',
+                'expires_in' => 3600,
+                'token_type' => 'Bearer',
+            ], 200),
+        ]);
+
+        $result = $this->service->refreshCurrentToken();
+
+        $this->assertTrue($result);
+        $this->assertEquals('new-access-token', Cache::get('spotify_access_token'));
+        $this->assertEquals('new-refresh-token', Cache::get('spotify_refresh_token'));
+    }
+
+    /** @test */
+    public function it_returns_false_when_refresh_fails(): void
+    {
+        Cache::put('spotify_refresh_token', 'test-refresh-token', 3600);
+
+        Http::fake([
+            'https://accounts.spotify.com/api/token' => Http::response([], 401),
+        ]);
+
+        $result = $this->service->refreshCurrentToken();
+
+        $this->assertFalse($result);
+        $this->assertNull(Cache::get('spotify_access_token'));
+    }
+
+    /** @test */
+    public function it_returns_false_when_no_refresh_token(): void
+    {
+        $result = $this->service->refreshCurrentToken();
+
+        $this->assertFalse($result);
+    }
 }

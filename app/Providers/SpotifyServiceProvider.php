@@ -17,27 +17,31 @@ class SpotifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Register OAuth HTTP client for Spotify token endpoints
-        $this->app->singleton('spotify.oauth.client', function ($app) {
-            $client = new ExternalClient(
-                baseUrl: '',
-                headers: [],
-                timeout: 30
-            );
+        // Register factory for creating decorated HTTP clients
+        $this->app->bind('spotify.http.factory', function ($app) {
+            return function (string $baseUrl = '', array $headers = [], int $timeout = 30) {
+                $client = new ExternalClient(
+                    baseUrl: $baseUrl,
+                    headers: $headers,
+                    timeout: $timeout
+                );
 
-            // Decorate with exception handling
-            $client = new HttpClientExceptionDecorator($client);
+                // Decorate with exception handling
+                $client = new HttpClientExceptionDecorator($client);
 
-            // Decorate with request logging
-            $client = new RequestLoggerDecorator($client);
+                // Decorate with request logging
+                $client = new RequestLoggerDecorator($client);
 
-            return $client;
+                return $client;
+            };
         });
 
         // Register SpotifyOAuthService
         $this->app->singleton(OAuthServiceInterface::class, function ($app) {
+            $factory = $app->make('spotify.http.factory');
+
             return new SpotifyOAuthService(
-                client: $app->make('spotify.oauth.client'),
+                client: $factory('', [], 30),
                 clientId: config('services.spotify.client_id'),
                 clientSecret: config('services.spotify.client_secret'),
                 redirectUri: config('services.spotify.redirect'),
@@ -48,32 +52,26 @@ class SpotifyServiceProvider extends ServiceProvider
         });
 
         // Register ExternalClient configured for Spotify with decorators
-        $this->app->singleton(ExternalClient::class, function ($app) {
+        $this->app->bind(ExternalClient::class, function ($app) {
+            $factory = $app->make('spotify.http.factory');
+
             // Try to get token from cache first, fallback to config
             $oauthService = $app->make(OAuthServiceInterface::class);
             $accessToken = $oauthService->getCachedToken() ?? config('services.spotify.access_token', '');
 
-            $client = new ExternalClient(
-                baseUrl: 'https://api.spotify.com/v1',
-                headers: [
+            return $factory(
+                'https://api.spotify.com/v1',
+                [
                     'Authorization' => 'Bearer '.$accessToken,
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                 ],
-                timeout: 30
+                30
             );
-
-            // Decorate with exception handling
-            $client = new HttpClientExceptionDecorator($client);
-
-            // Decorate with request logging
-            $client = new RequestLoggerDecorator($client);
-
-            return $client;
         });
 
         // Register SpotifyClient with configured ExternalClient
-        $this->app->singleton(SpotifyClient::class, function ($app) {
+        $this->app->bind(SpotifyClient::class, function ($app) {
             return new SpotifyClient(
                 $app->make(ExternalClient::class)
             );

@@ -33,4 +33,14 @@ interface OAuthServiceInterface
      * Clear cached tokens.
      */
     public function clearCache(): void;
+
+    /**
+     * Get the time until token expires in seconds.
+     */
+    public function getTimeUntilExpiry(): ?int;
+
+    /**
+     * Manually refresh the current token.
+     */
+    public function refreshCurrentToken(): bool;
 }

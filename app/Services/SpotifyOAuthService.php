@@ -108,14 +108,29 @@ class SpotifyOAuthService implements OAuthServiceInterface
     }
 
     /**
-     * Attempt to refresh the access token.
+     * Get the time until token expires in seconds.
      */
-    protected function attemptTokenRefresh(): void
+    public function getTimeUntilExpiry(): ?int
+    {
+        if (! Cache::has('spotify_token_expires_at')) {
+            return null;
+        }
+
+        $expiresAt = Cache::get('spotify_token_expires_at');
+        $now = now()->timestamp;
+
+        return max(0, $expiresAt - $now);
+    }
+
+    /**
+     * Manually refresh the current token.
+     */
+    public function refreshCurrentToken(): bool
     {
         $refreshToken = Cache::get('spotify_refresh_token');
 
         if (! $refreshToken) {
-            return;
+            return false;
         }
 
         try {
@@ -129,9 +144,21 @@ class SpotifyOAuthService implements OAuthServiceInterface
                 $newRefreshToken,
                 $tokenData['expires_in']
             );
+
+            return true;
         } catch (\Exception $e) {
             // If refresh fails, clear cache to force re-authentication
             $this->clearCache();
+
+            return false;
         }
+    }
+
+    /**
+     * Attempt to refresh the access token.
+     */
+    protected function attemptTokenRefresh(): void
+    {
+        $this->refreshCurrentToken();
     }
 }
